@@ -1,0 +1,12 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Crear Vehiculo
+{% endblock titulo%}
+{% block pagina_actual %}
+Creación de Vehiculos
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar</button>
+    </form>
+{% endblock pagina_actual %}

@@ -1,0 +1,35 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Facturas
+{% endblock titulo %}
+{% block pagina_actual %}
+        Listado de Facturas
+        {% if facturas %}
+            <table border="1" align="center">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Hora Entrada</th>
+                        <th>Hora Salida</th>
+                        <th>Placa</th>
+                        <th>Valor Pagado</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                {% for factura in facturas %}
+                    <tbody>
+                        <tr>
+                            <th>{{ factura.pk }}</td>
+                            <td>{{ factura.registroEntrada.horaIngreso }}</td>
+                            <td>{{ factura.horaSalida }}</td>
+                            <td>{{ factura.registroEntrada.placa }}</td>
+                            <td>${{ factura.valorPagar }}</td>
+                            <td>{{ factura.estado }}</td>
+                        </tr>
+                    </tbody>
+                {% endfor %}
+            </table>
+        {% else %}
+            <h1>No existe facturas creadas.</h1>
+        {% endif%}
+{% endblock pagina_actual %}

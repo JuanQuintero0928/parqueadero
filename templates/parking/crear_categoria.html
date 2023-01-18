@@ -1,0 +1,12 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Crear Categoria
+{% endblock titulo%}
+{% block pagina_actual %}
+Creación de Categoria
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar</button>
+    </form>
+{% endblock pagina_actual %}

@@ -1,0 +1,33 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Empresa
+{% endblock titulo %}
+{% block pagina_actual %}
+        Listado de empresas
+        {% if empresas %}
+            <table border="1" align="center">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nit</th>
+                    <th>Nombre</th>
+                    <th>Representante Legal</th>
+                    <th>Cupos Motos</th>
+                    <th>Cupos Carro</th>
+                </tr>
+            </thead>
+            {% for empresa in empresas %}
+            <tbody>
+                <th>{{ empresa.pk }}</th>
+                <td>{{ empresa.nit }}</td>
+                <td>{{ empresa.nombre }}</td>
+                <td>{{ empresa.representanteLegal }}</td>
+                <td>{{ empresa.cuposMoto }}</td>
+                <td>{{ empresa.cuposCarro }}</td>
+            </tbody>
+            {% endfor %}
+        </table>
+        {% else %}
+            <h1>No existe Empresas creadas</h1>
+        {% endif %}
+{% endblock pagina_actual %}

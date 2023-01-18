@@ -1,0 +1,29 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Descuentos
+{% endblock titulo %}
+{% block pagina_actual %}
+        Listado de Descuentos
+        <br>
+        <a href="{% url 'parking:crear_descuento' %}">Crear Descuentos</a>
+        {% if descuentos %}
+            <table border="1" align="center">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo Descuento</th>
+                    <th>Porcentaje</th>
+                </tr>
+            </thead>
+            {% for descuento in descuentos %}
+            <tbody>
+                <th>{{ descuento.pk }}</th>
+                <td>{{ descuento.tipoDescuento }}</td>
+                <td>{{ descuento.porcentaje }}%</td>
+            </tbody>
+            {% endfor %}
+        </table>
+        {% else %}
+            <h1>No existe Descuentos creados.</h1>
+        {% endif %}
+{% endblock pagina_actual %}

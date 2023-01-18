@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Categorias
+{% endblock titulo %}
+{% block pagina_actual %}
+        Listado de Categorias
+        <nav>
+            <li><a href="{% url 'parking:crear_categoria' %}">Crear categoria</a></li>
+        </nav>
+        {% if categorias %}
+            <table border="1" align="center">
+                <tdead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Tarifa</th>
+                    </tr>
+                </tdead>
+                {% for categoria in categorias %}
+                    <tbody>
+                        <tr>
+                            <th>{{ categoria.pk }}</th>
+                            <td>{{ categoria.tipo }}</td>
+                            <td>${{ categoria.tarifa }}</td>
+                        </tr>
+                    </tbody>
+                {% endfor %}
+            </table>
+        {% else %}
+            <h1>No existe categorias creadas.</h1>
+        {% endif%}
+{% endblock pagina_actual %}

@@ -1,0 +1,4 @@
+parking/__pycache__
+parking/migrations
+parqueadero/__pycache__
+db.sqlite3

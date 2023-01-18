@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Registro Entrada
+{% endblock titulo %}
+{% block pagina_actual %}
+    Registro Entrada<br>
+    <a href="{% url 'parking:crear_registroEntrada' %}">Registrar Entrada</a>
+    {% if registrosentradas %}
+        <table border="1" align="center">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Hora Entrada</th>
+                    <th>Placa</th>
+                    <th>Salida</th>
+                </tr>
+            </thead>
+        {% for registroentrada in registrosentradas %}
+            <tbody>
+                <tr>
+                    <th>{{ registroentrada.pk }}</th>
+                    <td>{{ registroentrada.horaIngreso }}</td>
+                    <td>{{ registroentrada.placa }}</td>
+                    <td><a href="{% url 'parking:crearFactura' registroentrada.pk %}">Salida</a></td>
+                </tr>
+            </tbody>
+        {% endfor %}
+        </table>
+    {% else %}
+        <h1>No existen Registros Creados</h1>
+    {% endif %}
+{% endblock pagina_actual%}

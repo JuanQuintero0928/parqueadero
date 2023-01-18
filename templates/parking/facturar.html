@@ -1,0 +1,51 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Facturar
+{% endblock titulo %}
+{% block pagina_actual %}
+<table border="1px" align="center">
+    <tr>
+        <th colspan="4">Registro salida vehiculo {{ datos.idVehiculo.placa }}</th>
+    </tr>
+    <tr>
+        <th colspan="2"><h3>Hora Ingreso:</h3>{{ datos.factura.horaIngreso }}<br></th>
+        <th colspan="2"><h3>Hora Salida:</h3>{{ datos.fechaActual }}<br></th>
+    </tr>
+    <tr>
+        <th colspan="4">Informacion del vehiculo</th>
+    </tr>
+    <tr>
+        <th><h3>Placa:</h3>{{ datos.idVehiculo.placa }}<br></th>
+        <th><h3>Tipo Vehiculo:</h3>{{ datos.idVehiculo.tipo}}</th>
+        <th><h3>Tarifa Vehiculo:</h3>{{ datos.idTarifa.tarifa }}</th>
+        <th><h3>Descuento:</h3>{{ datos.idDescuento.tipoDescuento }}, <span> {{ datos.idDescuento.porcentaje }}%</span></th>
+    </tr>
+    <tr>
+        <th colspan="4">Tiempo en parqueadero</th>
+    </tr>
+    <tr>
+        <th><h3>Dias:</h3>{{ datos.dias }}</th>
+        <th><h3>Horas:</h3>{{ datos.horasTemplate }}</th>
+        <th colspan="2"><h3>Minutos:</h3>{{ datos.minutosTemplate }}</th>
+    </tr>
+    <tr>
+        <th><h3>Valor Sin Descuento:</h3>{{ datos.pagar }}<br></th>
+        <th><h3>Descuento:</h3>{{ datos.valorDescuento }}<br></th>
+        <th colspan="2" style="background-color: green;"><h3>Valor a Pagar:</h3>{{ datos.valorPagar }}<br></th>
+    </tr>
+</table>
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">Registrar</button>
+</form>
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+{% endblock pagina_actual %}

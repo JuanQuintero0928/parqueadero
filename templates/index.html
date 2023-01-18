@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Inicio{% endblock titulo %}</title>
+</head>
+<body>
+    <nav>
+        <li><a href="{% url 'inicio' %}">Inicio</a></li>
+        <li><a href="{% url 'parking:listar_empresa' %}">Empresa</a></li>
+        <li><a href="{% url 'parking:listar_categoria' %}">Categoria</a></li>
+        <li><a href="{% url 'parking:listar_vehiculoregistrados' %}">Vehiculos Registrados</a></li>
+        <li><a href="{% url 'parking:registro_entrada' %}">Registro Entradas</a></li>
+        <li><a href="{% url 'parking:listar_descuento' %}">Tarifas de Descuentos</a></li>
+        <li><a href="{% url 'parking:listar_factura' %}">Facturas</a></li>
+    </nav>
+    {% block pagina_actual %}
+    <h1>Este es el index</h1>
+    {% endblock pagina_actual %}
+</body>
+</html>

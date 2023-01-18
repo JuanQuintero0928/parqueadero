@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Vehiculos Registrados
+{% endblock titulo %}
+{% block pagina_actual %}
+Vehiculos Registrados<br>
+<a href="{% url 'parking:crear_vehiculo' %}">Crear Vehiculos</a>
+    {% if vehiculosregistrados %}
+        <table border="1" align="center">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Placa</th>
+                    <th>Descuento</th>
+                    <th>Tipo Vehiculo</th>
+                </tr>
+            </thead>
+        {% for vehiculoregistrado in vehiculosregistrados %}
+            <tbody>
+                <tr>
+                    <th>{{ vehiculoregistrado.pk }}</th>
+                    <td>{{ vehiculoregistrado.placa }}</td>
+                    <td>{{ vehiculoregistrado.descuento }}</td>
+                    <td>{{ vehiculoregistrado.tipo }}</td>
+                </tr>
+            </tbody>
+        {% endfor %}
+        </table>
+    {% else %}
+        <h1>No existen vehiculos registrados</h1>
+    {% endif %}
+{% endblock pagina_actual%}

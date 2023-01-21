@@ -16,8 +16,36 @@
         <li><a href="{% url 'parking:listar_descuento' %}">Tarifas de Descuentos</a></li>
         <li><a href="{% url 'parking:listar_factura' %}">Facturas</a></li>
     </nav>
+    {% block alertas %}
+        {% for message in messages%}
+            {% if message.tags == 'error'%}
+            <div class="alert alert-success d-flex align-items-center fade show" role="alert">
+                <strong></strong>{{ message}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif%}
+            {% if message.tags == 'info'%}
+            <div class="alert alert-success d-flex align-items-center fade show" role="alert">
+                <strong></strong>{{ message}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif%}
+        {% endfor %}
+    {% endblock alertas %}
+
     {% block pagina_actual %}
-    <h1>Este es el index</h1>
+        {% if datoMoto and datoCarro %}
+            {% for moto in datoMoto.values %}
+                    <h1>Cupos Moto</h1>
+                    <h3>{{ moto }}</h3>
+            {% endfor %}
+            {% for carro in datoCarro.values %}
+                    <h1>Cupos Carro</h1>
+                    <h3>{{ carro }}</h3>
+            {% endfor %}
+        {% else %}
+            no hay datos
+        {% endif %}
     {% endblock pagina_actual %}
 </body>
 </html>

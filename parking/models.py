@@ -37,6 +37,7 @@ class VehiculoRegistrado(models.Model):
     tipo = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     placa = models.CharField('Placa', max_length=6, blank=False, null=False)
     descuento = models.ForeignKey(Descuento, on_delete=models.CASCADE)
+    estadoParqueadero = models.BooleanField('In/Out', default=False)
     estado = models.BooleanField('Activo/Desactivo', default=True)
 
     class Meta:

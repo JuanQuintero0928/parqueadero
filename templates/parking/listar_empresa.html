@@ -14,6 +14,7 @@
                     <th>Representante Legal</th>
                     <th>Cupos Motos</th>
                     <th>Cupos Carro</th>
+                    <th>Opciones</th>
                 </tr>
             </thead>
             {% for empresa in empresas %}
@@ -24,6 +25,7 @@
                 <td>{{ empresa.representanteLegal }}</td>
                 <td>{{ empresa.cuposMoto }}</td>
                 <td>{{ empresa.cuposCarro }}</td>
+                <td><a href="{% url 'parking:editar_empresa' empresa.pk %}">Editar</a></td>
             </tbody>
             {% endfor %}
         </table>

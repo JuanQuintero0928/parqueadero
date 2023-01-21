@@ -13,7 +13,7 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 class VehiculoAdmin(admin.ModelAdmin):
     search_fields = ['placa']
-    list_display = ('tipo','placa','descuento','estado',)
+    list_display = ('tipo','placa','descuento','estado','estadoParqueadero')
 
 class RegistroEntradaAdmin(admin.ModelAdmin):
     list_display = ('horaIngreso','placa','estado',)

@@ -1,10 +1,9 @@
 {% extends 'index.html' %}
 {% block titulo %}
-    Crear Entrada Vehiculo
+    Editar Empresa
 {% endblock titulo%}
 {% block pagina_actual %}
-Creación de Registro Entrada
-<a href="{% url 'parking:crear_registroEntrada' %}">Registrar Entrada</a>
+Editar Empresa
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Categoria, RegistroEntrada, VehiculoRegistrado, Descuento
+from .models import Categoria, RegistroEntrada, Descuento, VehiculoRegistrado, Empresa
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
@@ -41,20 +41,37 @@ class VehiculoRegistradoForm(forms.ModelForm):
             'descuento_id':forms.SelectMultiple(),
         }
 
-class RegistroEntradaForm(forms.ModelForm):
-    class Meta:
-        model = RegistroEntrada
-        fields = ("placa",)
+class RegistroEntradaForm(forms.Form):
+    placa = forms.ModelChoiceField(queryset=VehiculoRegistrado.objects.filter(estadoParqueadero = False))
 
 class DescuentoForm(forms.ModelForm):
     class Meta:
         model = Descuento
         fields = ("tipoDescuento","porcentaje")
-        wigets = {
+        widgets = {
             'tipoDescuento': forms.TextInput(
                 attrs={
                     'placeholder':'Nombre Descuento'
                 }
             ),
             'porcentaje': forms.NumberInput()
+        }
+
+class EmpresaForm(forms.ModelForm):
+    class Meta:
+        model = Empresa
+        fields = ("nit","nombre","representanteLegal","cuposMoto","cuposCarro")
+        labels = {
+            'nit':'Nit',
+            'nombre':'Nombre',
+            'representanteLegal':'Representante Legal',
+            'cuposMoto':'Cupos Moto',
+            'cuposCarro':'Cupos Carro',
+        }
+        widgets = {
+            'nit': forms.TextInput(),
+            'nombre': forms.TextInput(),
+            'representanteLegal': forms.TextInput(),
+            'cuposMoto': forms.NumberInput(),
+            'cuposCarro': forms.NumberInput(),
         }

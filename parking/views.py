@@ -1,21 +1,45 @@
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, ListView, CreateView
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView
 from django.urls import reverse_lazy
+from django.contrib import messages
 from .models import Empresa, Categoria, VehiculoRegistrado, RegistroEntrada, Descuento, Factura
-from .forms import CategoriaForm, VehiculoRegistradoForm, RegistroEntradaForm, DescuentoForm
+from .forms import CategoriaForm, VehiculoRegistradoForm, RegistroEntradaForm, DescuentoForm, EmpresaForm
 from datetime import datetime
 import math
 
 # Create your views here.
 
+def calculoParqCarro():
+    objCarro = VehiculoRegistrado.objects.filter(estadoParqueadero = True).exclude(tipo_id = 1)
+    numCarros = len(objCarro)
+    datoCarro = {'numCarros':numCarros}
+    return (datoCarro)
+
+def calculoParqMoto():
+    objMoto = VehiculoRegistrado.objects.filter(estadoParqueadero = True, tipo_id = 1)
+    numMotos = len(objMoto)
+    datosMoto ={'numMotos':numMotos}
+    return (datosMoto)
+
 class Inicio(TemplateView):
     template_name = 'index.html'
+
+def inicio(request):
+    datoMoto = calculoParqMoto()
+    datoCarro = calculoParqCarro()
+    return render(request, 'index.html', {'datoMoto':datoMoto,'datoCarro':datoCarro})
 
 class ListarEmpresa(ListView):
     model = Empresa
     template_name = 'parking/listar_empresa.html'
     context_object_name = 'empresas'
     queryset = Empresa.objects.filter(estado = True)
+
+class EditarEmpresa(UpdateView):
+    model = Empresa
+    form_class = EmpresaForm
+    template_name = 'parking/editar_empresa.html'
+    success_url = reverse_lazy('parking:listar_empresa')
 
 class ListarCategoria(ListView):
     model = Categoria
@@ -24,6 +48,12 @@ class ListarCategoria(ListView):
     queryset = Categoria.objects.filter(estado = True)
 
 class CrearCategoria(CreateView):
+    model = Categoria
+    form_class = CategoriaForm
+    template_name = 'parking/crear_categoria.html'
+    success_url = reverse_lazy('parking:listar_categoria')
+
+class EditarCategoria(UpdateView):
     model = Categoria
     form_class = CategoriaForm
     template_name = 'parking/crear_categoria.html'
@@ -41,6 +71,12 @@ class CrearVehiculo(CreateView):
     template_name = 'parking/crear_vehiculoregistrado.html'
     success_url = reverse_lazy('parking:listar_vehiculoregistrados')
 
+class EditarVehiculo(UpdateView):
+    model = VehiculoRegistrado
+    form_class = VehiculoRegistradoForm
+    template_name = 'parking/crear_vehiculoregistrado.html'
+    success_url = reverse_lazy('parking:listar_vehiculoregistrados')
+
 class ListarRegistroEntrada(ListView):
     model = RegistroEntrada
     template_name = 'parking/listar_registroentrada.html'
@@ -53,6 +89,61 @@ class CrearRegistroEntrada(CreateView):
     template_name = 'parking/crear_registroentrada.html'
     success_url = reverse_lazy('parking:registro_entrada')
 
+    def _get_queryset(self):    # Retorna la consulta
+        return self.model.objects.filter(estado=False)
+
+    def get_context_data(self, **kwargs):   #Retorna la informacion que va hacer enviada al Template
+        # estado = VehiculoRegistrado()
+        # estado.estadoParqueadero = True
+        context = {}
+        context['registros'] = self._get_queryset
+        context['form'] = self.form_class   #Envio el formulario al template
+        context['model'] = self.model
+        return context
+    
+    def get(self, request, *args, **kwargs):    # Retorna toda la informacion cuando se hace la peticion
+        return render(request, self.template_name, self.get_context_data())
+    
+def crearRegistroEntrada(request):
+    if request.method == 'POST':
+        formulario = RegistroEntradaForm(request.POST)
+        if formulario.is_valid():
+            objeto = RegistroEntrada()
+            objeto.placa = formulario.cleaned_data['placa']
+            objetoVehiculo = VehiculoRegistrado.objects.get(placa = objeto.placa)
+            objetoVehiculo.estadoParqueadero = True
+            cupoTotal = Empresa.objects.get(pk = 1)
+            if objetoVehiculo.tipo_id == 1:
+                cupoActualMoto = calculoParqMoto()
+                for cupo in cupoActualMoto.values():
+                    cupoMoto = cupo
+                if cupoMoto < cupoTotal.cuposMoto:
+                    objeto.save()           #Crea el registro entrada
+                    objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
+                    messages.info(request,'Moto registrada con exito.')
+                    return redirect('parking:crear_registroEntrada')
+                else:
+                    messages.error(request,'Parqueadero lleno para motos.')
+                    return redirect('parking:crear_registroEntrada')
+            else:
+                cupoActualCarro = calculoParqCarro()
+                for cupo in cupoActualCarro.values():
+                    cupoCarro = cupo
+                if cupoCarro < cupoTotal.cuposCarro:
+                    objeto.save()           #Crea el registro entrada
+                    objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
+                    messages.info(request,'Vehiculo registrada con exito.')
+                    return redirect('parking:crear_registroEntrada')
+                else:
+                    messages.error(request,'Parqueadero lleno para carro.')
+                    return redirect('parking:crear_registroEntrada')
+        else:
+            messages.error(request,'Error al guardar la información, validar nuevamente los datos ingresados.')
+            return redirect('parking:crear_registroEntrada')
+    else:
+        formulario = RegistroEntradaForm()
+        return render(request, 'parking/crear_registroentrada.html', {'form':formulario})
+
 class ListarDescuento(ListView):
     model = Descuento
     template_name = 'parking/listar_descuentos.html'
@@ -60,6 +151,12 @@ class ListarDescuento(ListView):
     queryset = Descuento.objects.all()
 
 class CrearDescuento(CreateView):
+    model = Descuento
+    form_class = DescuentoForm
+    template_name = 'parking/crear_descuento.html'
+    success_url = reverse_lazy('parking:listar_descuento')
+
+class EditarDescuento(UpdateView):
     model = Descuento
     form_class = DescuentoForm
     template_name = 'parking/crear_descuento.html'
@@ -122,11 +219,14 @@ def crearFactura(request, pk):
     if request.method == 'POST':
         factura.estado = True
         factura.save()
+        idVehiculo.estadoParqueadero = False
         creacionfactura = Factura()
         creacionfactura.horaSalida = fechaActual
         creacionfactura.valorPagar = valorPagar
         creacionfactura.estado = True
         creacionfactura.registroEntrada = RegistroEntrada.objects.get(pk=pk)
         creacionfactura.save()
+        idVehiculo.save()
+        messages.info(request,'Factura realizada con exito.')
         return redirect('parking:registro_entrada')
     return render(request, 'parking/facturar.html', {'datos':datos})

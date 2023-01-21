@@ -13,6 +13,8 @@ Vehiculos Registrados<br>
                     <th>Placa</th>
                     <th>Descuento</th>
                     <th>Tipo Vehiculo</th>
+                    <th>Se encuentra estacionado</th>
+                    <th>Opciones</th>
                 </tr>
             </thead>
         {% for vehiculoregistrado in vehiculosregistrados %}
@@ -22,6 +24,8 @@ Vehiculos Registrados<br>
                     <td>{{ vehiculoregistrado.placa }}</td>
                     <td>{{ vehiculoregistrado.descuento }}</td>
                     <td>{{ vehiculoregistrado.tipo }}</td>
+                    <td>{{ vehiculoregistrado.estadoParqueadero }}</td>
+                    <td><a href="{% url 'parking:editar_vehiculo' vehiculoregistrado.pk %}">Editar</a></td>
                 </tr>
             </tbody>
         {% endfor %}

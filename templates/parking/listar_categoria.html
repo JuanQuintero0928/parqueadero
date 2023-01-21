@@ -14,6 +14,7 @@
                         <th>ID</th>
                         <th>Tipo</th>
                         <th>Tarifa</th>
+                        <th>Opciones</th>
                     </tr>
                 </tdead>
                 {% for categoria in categorias %}
@@ -22,6 +23,7 @@
                             <th>{{ categoria.pk }}</th>
                             <td>{{ categoria.tipo }}</td>
                             <td>${{ categoria.tarifa }}</td>
+                            <td><a href="{% url 'parking:editar_categoria' categoria.pk%}">Editar</a></td>
                         </tr>
                     </tbody>
                 {% endfor %}

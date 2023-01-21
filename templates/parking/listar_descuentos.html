@@ -13,6 +13,7 @@
                     <th>ID</th>
                     <th>Tipo Descuento</th>
                     <th>Porcentaje</th>
+                    <th>Opciones</th>
                 </tr>
             </thead>
             {% for descuento in descuentos %}
@@ -20,6 +21,7 @@
                 <th>{{ descuento.pk }}</th>
                 <td>{{ descuento.tipoDescuento }}</td>
                 <td>{{ descuento.porcentaje }}%</td>
+                <td><a href="{% url 'parking:editar_descuento' descuento.pk %}">Editar</a></td>
             </tbody>
             {% endfor %}
         </table>

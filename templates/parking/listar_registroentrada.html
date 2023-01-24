@@ -2,32 +2,43 @@
 {% block titulo %}
     Registro Entrada
 {% endblock titulo %}
+{% block tituloPrincipal %}
+    Listado de Registro de Entradas
+{% endblock tituloPrincipal %}
+{% block tituloSecundario %}
+    <div class="row">
+        <div class="col-md-8">
+            Contenido
+        </div>
+        <div class="col-md-4">
+        <a href="{% url 'parking:crear_registroEntrada' %}">Registrar Entrada</a>
+        </div>
+    </div>
+{% endblock tituloSecundario %}
 {% block pagina_actual %}
-    Registro Entrada<br>
-    <a href="{% url 'parking:crear_registroEntrada' %}">Registrar Entrada</a>
     {% if registrosentradas %}
-        <table border="1" align="center">
+        <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Hora Entrada</th>
-                    <th>Placa</th>
-                    <th>Salida</th>
-                    <th>Opciones</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Hora Entrada</th>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Salida</th>
+                    <th scope="col">Opciones</th>
                 </tr>
             </thead>
-        {% for registroentrada in registrosentradas %}
             <tbody>
+                {% for registroentrada in registrosentradas %}
                 <tr>
                     <th>{{ registroentrada.pk }}</th>
                     <td>{{ registroentrada.horaIngreso }}</td>
                     <td>{{ registroentrada.placa }}</td>
                     <td><a href="{% url 'parking:crearFactura' registroentrada.pk %}">Salida</a></td>
                 </tr>
+                {% endfor %}
             </tbody>
-        {% endfor %}
         </table>
     {% else %}
-        <h1>No existen Registros Creados</h1>
+        <h1>No existen Registros Creados.</h1>
     {% endif %}
 {% endblock pagina_actual%}

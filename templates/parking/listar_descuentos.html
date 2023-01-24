@@ -2,29 +2,41 @@
 {% block titulo %}
     Descuentos
 {% endblock titulo %}
-{% block pagina_actual %}
-        Listado de Descuentos
-        <br>
+{% block tituloPrincipal %}
+    Listado de Descuentos
+{% endblock tituloPrincipal %}
+{% block tituloSecundario %}
+    <div class="row">
+        <div class="col-md-8">
+            Contenido
+        </div>
+        <div class="col-md-4">
         <a href="{% url 'parking:crear_descuento' %}">Crear Descuentos</a>
+        </div>
+    </div>
+{% endblock tituloSecundario %}
+{% block pagina_actual %}
         {% if descuentos %}
-            <table border="1" align="center">
+            <table class="table table-bordered">
                 <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tipo Descuento</th>
-                    <th>Porcentaje</th>
-                    <th>Opciones</th>
-                </tr>
-            </thead>
-            {% for descuento in descuentos %}
-            <tbody>
-                <th>{{ descuento.pk }}</th>
-                <td>{{ descuento.tipoDescuento }}</td>
-                <td>{{ descuento.porcentaje }}%</td>
-                <td><a href="{% url 'parking:editar_descuento' descuento.pk %}">Editar</a></td>
-            </tbody>
-            {% endfor %}
-        </table>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Tipo Descuento</th>
+                        <th scope="col">Porcentaje</th>
+                        <th scope="col">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for descuento in descuentos %}
+                    <tr>
+                        <th>{{ descuento.pk }}</th>
+                        <td>{{ descuento.tipoDescuento }}</td>
+                        <td>{{ descuento.porcentaje }}%</td>
+                        <td><a href="{% url 'parking:editar_descuento' descuento.pk %}">Editar</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% else %}
             <h1>No existe Descuentos creados.</h1>
         {% endif %}

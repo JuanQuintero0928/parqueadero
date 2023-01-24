@@ -2,24 +2,32 @@
 {% block titulo %}
     Facturas
 {% endblock titulo %}
+{% block tituloSecundario %}
+    <div class="row">
+        <div class="col-md-8">
+            Contenido
+        </div>
+        <div class="col-md-4">
+        </div>
+    </div>
+{% endblock tituloSecundario %}
 {% block pagina_actual %}
-        Listado de Facturas
         {% if facturas %}
-            <table border="1" align="center">
+            <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Hora Entrada</th>
-                        <th>Hora Salida</th>
-                        <th>Placa</th>
-                        <th>Valor Pagado</th>
-                        <th>Estado</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">Hora Entrada</th>
+                        <th scope="col">Hora Salida</th>
+                        <th scope="col">Placa</th>
+                        <th scope="col">Valor Pagado</th>
+                        <th scope="col">Estado</th>
                     </tr>
                 </thead>
                 {% for factura in facturas %}
                     <tbody>
                         <tr>
-                            <th>{{ factura.pk }}</td>
+                            <th>{{ factura.pk }}</th>
                             <td>{{ factura.registroEntrada.horaIngreso }}</td>
                             <td>{{ factura.horaSalida }}</td>
                             <td>{{ factura.registroEntrada.placa }}</td>

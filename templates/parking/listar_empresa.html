@@ -2,33 +2,40 @@
 {% block titulo %}
     Empresa
 {% endblock titulo %}
+{% block tituloPrincipal %}
+    Listado de Empresas
+{% endblock tituloPrincipal %}
+{% block tituloSecundario %}
+    Contenido
+{% endblock tituloSecundario %}
 {% block pagina_actual %}
-        Listado de empresas
         {% if empresas %}
-            <table border="1" align="center">
+            <table class="table table-bordered">
                 <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nit</th>
-                    <th>Nombre</th>
-                    <th>Representante Legal</th>
-                    <th>Cupos Motos</th>
-                    <th>Cupos Carro</th>
-                    <th>Opciones</th>
-                </tr>
-            </thead>
-            {% for empresa in empresas %}
-            <tbody>
-                <th>{{ empresa.pk }}</th>
-                <td>{{ empresa.nit }}</td>
-                <td>{{ empresa.nombre }}</td>
-                <td>{{ empresa.representanteLegal }}</td>
-                <td>{{ empresa.cuposMoto }}</td>
-                <td>{{ empresa.cuposCarro }}</td>
-                <td><a href="{% url 'parking:editar_empresa' empresa.pk %}">Editar</a></td>
-            </tbody>
-            {% endfor %}
-        </table>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Nit</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">representante Legal</th>
+                        <th scope="col">Cupos Moto</th>
+                        <th scope="col">Cupos Carro</th>
+                        <th scope="col">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empresa in empresas %}
+                    <tr>
+                        <td>{{ empresa.pk }}</td>
+                        <td>{{ empresa.nit }}</td>
+                        <td>{{ empresa.nombre }}</td>
+                        <td>{{ empresa.representanteLegal }}</td>
+                        <td>{{ empresa.cuposMoto }}</td>
+                        <td>{{ empresa.cuposCarro }}</td>
+                        <td><a href="{% url 'parking:editar_empresa' empresa.pk %}">Editar</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% else %}
             <h1>No existe Empresas creadas</h1>
         {% endif %}

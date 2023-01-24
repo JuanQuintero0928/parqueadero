@@ -27,7 +27,15 @@ class Inicio(TemplateView):
 def inicio(request):
     datoMoto = calculoParqMoto()
     datoCarro = calculoParqCarro()
-    return render(request, 'index.html', {'datoMoto':datoMoto,'datoCarro':datoCarro})
+    queryEmpresa = Empresa.objects.get(pk=1)
+    for moto in datoMoto.values():
+        actualMoto = moto
+    for carro in datoCarro.values():
+        actualCarro = carro
+    difmoto = queryEmpresa.cuposMoto - actualMoto
+    difcarro = queryEmpresa.cuposCarro - actualCarro
+
+    return render(request, 'index.html', {'datoMoto':datoMoto,'datoCarro':datoCarro,'queryEmpresa':queryEmpresa, 'difmoto':difmoto, 'difcarro':difcarro})
 
 class ListarEmpresa(ListView):
     model = Empresa

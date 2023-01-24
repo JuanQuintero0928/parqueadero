@@ -2,31 +2,40 @@
 {% block titulo %}
     Categorias
 {% endblock titulo %}
+{% block tituloPrincipal %}
+    Listado de Categorias
+{% endblock tituloPrincipal %}
+{% block tituloSecundario %}
+    <div class="row">
+        <div class="col-md-8">
+            Contenido
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'parking:crear_categoria' %}">Crear categoria</a>
+        </div>
+    </div>
+{% endblock tituloSecundario %}
 {% block pagina_actual %}
-        Listado de Categorias
-        <nav>
-            <li><a href="{% url 'parking:crear_categoria' %}">Crear categoria</a></li>
-        </nav>
         {% if categorias %}
-            <table border="1" align="center">
-                <tdead>
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Tipo</th>
-                        <th>Tarifa</th>
-                        <th>Opciones</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">Tipo Vehiculo</th>
+                        <th scope="col">Tarifa</th>
+                        <th scope="col">Opciones</th>
                     </tr>
-                </tdead>
-                {% for categoria in categorias %}
-                    <tbody>
-                        <tr>
-                            <th>{{ categoria.pk }}</th>
-                            <td>{{ categoria.tipo }}</td>
-                            <td>${{ categoria.tarifa }}</td>
-                            <td><a href="{% url 'parking:editar_categoria' categoria.pk%}">Editar</a></td>
-                        </tr>
-                    </tbody>
-                {% endfor %}
+                </thead>
+                <tbody>
+                    {% for categoria in categorias %}
+                    <tr>
+                        <th>{{ categoria.pk }}</th>
+                        <td>{{ categoria.tipo }}</td>
+                        <td>${{ categoria.tarifa }}</td>
+                        <td><a href="{% url 'parking:editar_categoria' categoria.pk%}">Editar</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         {% else %}
             <h1>No existe categorias creadas.</h1>

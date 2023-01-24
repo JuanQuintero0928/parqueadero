@@ -2,23 +2,34 @@
 {% block titulo %}
     Vehiculos Registrados
 {% endblock titulo %}
+{% block tituloPrincipal %}
+    Listado de Vehiculos
+{% endblock tituloPrincipal %}
+{% block tituloSecundario %}
+    <div class="row">
+        <div class="col-md-8">
+            Contenido
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'parking:crear_vehiculo' %}">Crear Vehiculo</a>
+        </div>
+    </div>
+{% endblock tituloSecundario %}
 {% block pagina_actual %}
-Vehiculos Registrados<br>
-<a href="{% url 'parking:crear_vehiculo' %}">Crear Vehiculos</a>
     {% if vehiculosregistrados %}
-        <table border="1" align="center">
+        <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Placa</th>
-                    <th>Descuento</th>
-                    <th>Tipo Vehiculo</th>
-                    <th>Se encuentra estacionado</th>
-                    <th>Opciones</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Descuento</th>
+                    <th scope="col">Tipo Vehiculo</th>
+                    <th scope="col">Estado Vehiculo</th>
+                    <th scope="col">Opciones</th>
                 </tr>
             </thead>
-        {% for vehiculoregistrado in vehiculosregistrados %}
             <tbody>
+                {% for vehiculoregistrado in vehiculosregistrados %}
                 <tr>
                     <th>{{ vehiculoregistrado.pk }}</th>
                     <td>{{ vehiculoregistrado.placa }}</td>
@@ -27,10 +38,10 @@ Vehiculos Registrados<br>
                     <td>{{ vehiculoregistrado.estadoParqueadero }}</td>
                     <td><a href="{% url 'parking:editar_vehiculo' vehiculoregistrado.pk %}">Editar</a></td>
                 </tr>
+                {% endfor %}
             </tbody>
-        {% endfor %}
         </table>
     {% else %}
-        <h1>No existen vehiculos registrados</h1>
-    {% endif %}
+        <h1>No existe vehiculos creados.</h1>
+    {% endif%}
 {% endblock pagina_actual%}

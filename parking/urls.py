@@ -1,20 +1,21 @@
 from django.urls import path
+from django.contrib.auth.decorators import login_required
 from .views import ListarEmpresa, ListarCategoria, ListarVehiculoRegistrado, CrearCategoria, ListarRegistroEntrada, ListarDescuento, ListarFactura, crearFactura, CrearVehiculo, CrearRegistroEntrada, CrearDescuento, EditarCategoria, EditarDescuento, EditarVehiculo, crearRegistroEntrada, EditarEmpresa
 
 urlpatterns = [
-    path('listar_empresa/', ListarEmpresa.as_view(), name='listar_empresa'),
-    path('listar_categoria/', ListarCategoria.as_view(), name='listar_categoria'),
-    path('crear_categoria/', CrearCategoria.as_view(), name='crear_categoria'),
-    path('listar_vehiculosregistrados/', ListarVehiculoRegistrado.as_view(), name='listar_vehiculoregistrados'),
-    path('registro_entrada/', ListarRegistroEntrada.as_view(), name='registro_entrada'),
-    path('listar_descuento/', ListarDescuento.as_view(), name='listar_descuento'),
-    path('crearFactura/<int:pk>', crearFactura, name='crearFactura'),
-    path('listar_factura/', ListarFactura.as_view(), name='listar_factura'),
-    path('crear_vehiculo/', CrearVehiculo.as_view(), name='crear_vehiculo'),
-    path('crear_registroEntrada/', crearRegistroEntrada, name='crear_registroEntrada'),
-    path('crear_descuento/', CrearDescuento.as_view(), name='crear_descuento'),
-    path('editar_categoria/<int:pk>', EditarCategoria.as_view(), name='editar_categoria'),
-    path('editar_descuento/<int:pk>', EditarDescuento.as_view(), name='editar_descuento'),
-    path('editar_vehiculo/<int:pk>', EditarVehiculo.as_view(), name='editar_vehiculo'),
-    path('editar_empresa/<int:pk>', EditarEmpresa.as_view(), name='editar_empresa'),
+    path('listar_empresa/', login_required(ListarEmpresa.as_view()), name='listar_empresa'),
+    path('listar_categoria/', login_required(ListarCategoria.as_view()), name='listar_categoria'),
+    path('crear_categoria/', login_required(CrearCategoria.as_view()), name='crear_categoria'),
+    path('listar_vehiculosregistrados/', login_required(ListarVehiculoRegistrado.as_view()), name='listar_vehiculoregistrados'),
+    path('registro_entrada/', login_required(ListarRegistroEntrada.as_view()), name='registro_entrada'),
+    path('listar_descuento/', login_required(ListarDescuento.as_view()), name='listar_descuento'),
+    path('crearFactura/<int:pk>', login_required(crearFactura), name='crearFactura'),
+    path('listar_factura/', login_required(ListarFactura.as_view()), name='listar_factura'),
+    path('crear_vehiculo/', login_required(CrearVehiculo.as_view()), name='crear_vehiculo'),
+    path('crear_registroEntrada/', login_required(crearRegistroEntrada), name='crear_registroEntrada'),
+    path('crear_descuento/', login_required(CrearDescuento.as_view()), name='crear_descuento'),
+    path('editar_categoria/<int:pk>', login_required(EditarCategoria.as_view()), name='editar_categoria'),
+    path('editar_descuento/<int:pk>', login_required(EditarDescuento.as_view()), name='editar_descuento'),
+    path('editar_vehiculo/<int:pk>', login_required(EditarVehiculo.as_view()), name='editar_vehiculo'),
+    path('editar_empresa/<int:pk>', login_required(EditarEmpresa.as_view()), name='editar_empresa'),
 ]

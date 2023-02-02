@@ -23,7 +23,7 @@
                         <th scope="col">ID</th>
                         <th scope="col">Tipo Vehiculo</th>
                         <th scope="col">Tarifa</th>
-                        <th scope="col">Opciones</th>
+                        <th scope="col">Editar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,12 +32,15 @@
                         <th>{{ categoria.pk }}</th>
                         <td>{{ categoria.tipo }}</td>
                         <td>${{ categoria.tarifa }}</td>
-                        <td><a href="{% url 'parking:editar_categoria' categoria.pk%}">Editar</a></td>
+                        <td><a href="{% url 'parking:editar_categoria' categoria.pk%}"><i class="fa fa-edit"></i></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <h1>No existe categorias creadas.</h1>
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">No existen registros!</h4>
+                <hr>
+            </div>
         {% endif%}
 {% endblock pagina_actual %}

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Empresa, Categoria, VehiculoRegistrado, RegistroEntrada, Descuento, Factura
+from .models import Empresa, Categoria, VehiculoRegistrado, RegistroEntrada, Descuento, Factura, OpcionesEliminacion
 
 # Register your models here.
 
@@ -25,9 +25,13 @@ class DescuentoAdmin(admin.ModelAdmin):
 class FacturaAdmin(admin.ModelAdmin):
     list_display = ('registroEntrada','horaSalida','valorPagar','estado')
 
+class OpcionesEliminacionAdmin(admin.ModelAdmin):
+    list_display = ('descripcion',)
+
 admin.site.register(Empresa, EmpresaAdmin)
 admin.site.register(Categoria, CategoriaAdmin)
 admin.site.register(VehiculoRegistrado, VehiculoAdmin)
 admin.site.register(RegistroEntrada, RegistroEntradaAdmin)
 admin.site.register(Descuento, DescuentoAdmin)
 admin.site.register(Factura, FacturaAdmin)
+admin.site.register(OpcionesEliminacion, OpcionesEliminacionAdmin)

@@ -2,6 +2,9 @@
 {% block titulo %}
     Facturas
 {% endblock titulo %}
+{% block tituloPrincipal %}
+    Listado de Facturas
+{% endblock tituloPrincipal %}
 {% block tituloSecundario %}
     <div class="row">
         <div class="col-md-8">
@@ -22,6 +25,7 @@
                         <th scope="col">Placa</th>
                         <th scope="col">Valor Pagado</th>
                         <th scope="col">Estado</th>
+                        <th scope="col">Prueba</th>
                     </tr>
                 </thead>
                 {% for factura in facturas %}
@@ -33,11 +37,15 @@
                             <td>{{ factura.registroEntrada.placa }}</td>
                             <td>${{ factura.valorPagar }}</td>
                             <td>{{ factura.estado }}</td>
+                            <td>{{ factura.registroEntrada.placa.tipo.tipo }}</td>
                         </tr>
                     </tbody>
                 {% endfor %}
             </table>
         {% else %}
-            <h1>No existe facturas creadas.</h1>
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">No existen registros!</h4>
+                <hr>
+            </div>
         {% endif%}
 {% endblock pagina_actual %}

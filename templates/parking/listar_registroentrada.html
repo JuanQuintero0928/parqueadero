@@ -23,8 +23,9 @@
                     <th scope="col">ID</th>
                     <th scope="col">Hora Entrada</th>
                     <th scope="col">Placa</th>
+                    <th scope="col">Tipo Vehiculo</th>
                     <th scope="col">Salida</th>
-                    <th scope="col">Opciones</th>
+                    <th scope="col">Eliminar</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,12 +34,17 @@
                     <th>{{ registroentrada.pk }}</th>
                     <td>{{ registroentrada.horaIngreso }}</td>
                     <td>{{ registroentrada.placa }}</td>
-                    <td><a href="{% url 'parking:crearFactura' registroentrada.pk %}">Salida</a></td>
+                    <td>{{ registroentrada.placa.tipo }}</td>
+                    <td><a href="{% url 'parking:crearFactura' registroentrada.pk %}"><i class="fa fa-cloud-upload"></i></a></td>
+                    <td><a href="{% url 'parking:eliminar_registroEntrada' registroentrada.pk %}"><i class="fa fa-ban"></i></a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <h1>No existen Registros Creados.</h1>
+        <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading">No existen registros!</h4>
+            <hr>
+        </div>
     {% endif %}
 {% endblock pagina_actual%}

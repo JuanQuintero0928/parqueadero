@@ -1,51 +1,54 @@
 {% extends 'index.html' %}
 {% block titulo %}
-    Facturar
-{% endblock titulo %}
+    Factura Vehiculo
+{% endblock titulo%}
+{% block tituloPrincipal %}
+    Dar Salida Al vehiculo {{ datos.idVehiculo.placa }}
+{% endblock tituloPrincipal %}
+{% block tituloSecundario %}
+    Contenido
+{% endblock tituloSecundario %}
 {% block pagina_actual %}
-<table border="1px" align="center">
+<table class="table table-bordered">
     <tr>
-        <th colspan="4">Registro salida vehiculo {{ datos.idVehiculo.placa }}</th>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fa fa-dot-circle-o"></i> Generar Facturar
+                </button>
+            </div>
+        </form>
     </tr>
     <tr>
-        <th colspan="2"><h3>Hora Ingreso:</h3>{{ datos.factura.horaIngreso }}<br></th>
-        <th colspan="2"><h3>Hora Salida:</h3>{{ datos.fechaActual }}<br></th>
+        <th colspan="4" scope="col">Registro salida vehiculo {{ datos.idVehiculo.placa }}</th>
     </tr>
     <tr>
-        <th colspan="4">Informacion del vehiculo</th>
+        <th colspan="2" scope="col"><h4>Hora Ingreso:</h4>{{ datos.factura.horaIngreso }}</th>
+        <th colspan="2" scope="col"><h4>Hora Salida:</h4>{{ datos.fechaActual }}</th>
     </tr>
     <tr>
-        <th><h3>Placa:</h3>{{ datos.idVehiculo.placa }}<br></th>
-        <th><h3>Tipo Vehiculo:</h3>{{ datos.idVehiculo.tipo}}</th>
-        <th><h3>Tarifa Vehiculo:</h3>{{ datos.idTarifa.tarifa }}</th>
-        <th><h3>Descuento:</h3>{{ datos.idDescuento.tipoDescuento }}, <span> {{ datos.idDescuento.porcentaje }}%</span></th>
+        <th colspan="4" scope="col">Informacion del vehiculo</th>
     </tr>
     <tr>
-        <th colspan="4">Tiempo en parqueadero</th>
+        <th scope="col"><h4>Placa:</h4>{{ datos.idVehiculo.placa }}</th>
+        <th scope="col"><h4>Tipo Vehiculo:</h4>{{ datos.idVehiculo.tipo}}</th>
+        <th scope="col"><h4>Tarifa Vehiculo:</h4>{{ datos.idTarifa.tarifa }}</th>
+        <th scope="col"><h4>Descuento:</h4>{{ datos.idDescuento.tipoDescuento }}, <span> {{ datos.idDescuento.porcentaje }}%</span></th>
     </tr>
     <tr>
-        <th><h3>Dias:</h3>{{ datos.dias }}</th>
-        <th><h3>Horas:</h3>{{ datos.horasTemplate }}</th>
-        <th colspan="2"><h3>Minutos:</h3>{{ datos.minutosTemplate }}</th>
+        <th colspan="4" scope="col">Tiempo en parqueadero</th>
     </tr>
     <tr>
-        <th><h3>Valor Sin Descuento:</h3>{{ datos.pagar }}<br></th>
-        <th><h3>Descuento:</h3>{{ datos.valorDescuento }}<br></th>
-        <th colspan="2" style="background-color: green;"><h3>Valor a Pagar:</h3>{{ datos.valorPagar }}<br></th>
+        <th scope="col"><h4>Dias:</h4>{{ datos.dias }}</th>
+        <th scope="col"><h4>Horas:</h4>{{ datos.horasTemplate }}</th>
+        <th colspan="2" scope="col"><h4>Minutos:</h4>{{ datos.minutosTemplate }}</th>
+    </tr>
+    <tr>
+        <th scope="col"><h4>Valor Sin Descuento:</h4>$ {{ datos.pagar }}</th>
+        <th scope="col"><h4>Descuento:</h4>$ {{ datos.valorDescuento }}</th>
+        <th colspan="2" scope="col"><h4>Valor a Pagar:</h4>$ {{ datos.valorPagar }}</th>
     </tr>
 </table>
-<form method="POST">
-    {% csrf_token %}
-    <button type="submit">Registrar</button>
-</form>
-    
-    
-    
-    
-    
-    
-    
-    
-
 
 {% endblock pagina_actual %}

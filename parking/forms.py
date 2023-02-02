@@ -4,20 +4,29 @@ from .models import Categoria, RegistroEntrada, Descuento, VehiculoRegistrado, E
 class CategoriaForm(forms.ModelForm):
     class Meta:
         model = Categoria
-        fields = ['tipo','tarifa']
+        fields = ['tipo','tarifa','cupoEspacio']
         labels = {
             'tipo':'Tipo Categoria',
             'tarifa':'Tarifa',
+            'cupoEspacio':'Ocupa espacio de',
         }
         widgets = {
             'tipo': forms.TextInput(
                 attrs={
-                    'placeholder':'Ingrese una categoria'
+                    'placeholder':'...',
+                    'class':'form-control cont-capitalize'
                 }
             ),
-            'tarifa': forms.TextInput(
+            'tarifa': forms.NumberInput(
                 attrs={
-                    'placeholder':'Ingrese la tarifa'
+                    'placeholder':'$',
+                    'min':0,
+                    'class':'form-control'
+                }
+            ),
+            'cupoEspacio': forms.Select(
+                attrs={
+                    'class':'form-control'
                 }
             )
         }
@@ -25,24 +34,38 @@ class CategoriaForm(forms.ModelForm):
 class VehiculoRegistradoForm(forms.ModelForm):
     class Meta:
         model = VehiculoRegistrado
-        fields = ("tipo","placa","descuento")
+        fields = ('tipo',"placa","descuento")
         labels = {
-            'tipo_id':'Tipo Vehiculo',
+            'tipo':'Tipo Vehiculo',
             'placa':'Placa',
-            'descuento_id':'Descuento',
+            'descuento':'Descuento',
         }
         widgets = {
-            'tipo_id': forms.SelectMultiple(),
-            'placa': forms.TextInput(
+            'tipo': forms.Select(
                 attrs={
-                    'placeholder':'Ingrese placa del vehiculo',
+                    'class':'form-control'
                 }
             ),
-            'descuento_id':forms.SelectMultiple(),
+            'placa': forms.TextInput(
+                attrs={
+                    'placeholder':'...',
+                    'class':'form-control cont-uppercase'
+                }
+            ),
+            'descuento':forms.Select(
+                attrs={
+                'class':'form-control'
+                }
+            ),
         }
 
 class RegistroEntradaForm(forms.Form):
-    placa = forms.ModelChoiceField(queryset=VehiculoRegistrado.objects.filter(estadoParqueadero = False))
+    placa = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control cont-uppercase','maxlength':'6','placeholder':'Example : AAA123'}))
+    # placa = forms.ModelChoiceField(queryset=VehiculoRegistrado.objects.filter(estadoParqueadero = False))
+    # # CHOICES = queryset=VehiculoRegistrado.objects.all()
+    # CHOICES = [('1', 'First'), ('2', 'Second')]
+    # placa = forms.TextInput(choices=CHOICES)
+    # placa.choices
 
 class DescuentoForm(forms.ModelForm):
     class Meta:
@@ -51,10 +74,17 @@ class DescuentoForm(forms.ModelForm):
         widgets = {
             'tipoDescuento': forms.TextInput(
                 attrs={
-                    'placeholder':'Nombre Descuento'
+                    'placeholder':'...',
+                    'class':'form-control'
                 }
             ),
-            'porcentaje': forms.NumberInput()
+            'porcentaje': forms.NumberInput(
+                attrs={
+                    'placeholder':'%',
+                    'min':0,
+                    'class':'form-control'
+                }
+            )
         }
 
 class EmpresaForm(forms.ModelForm):
@@ -69,9 +99,44 @@ class EmpresaForm(forms.ModelForm):
             'cuposCarro':'Cupos Carro',
         }
         widgets = {
-            'nit': forms.TextInput(),
-            'nombre': forms.TextInput(),
-            'representanteLegal': forms.TextInput(),
-            'cuposMoto': forms.NumberInput(),
-            'cuposCarro': forms.NumberInput(),
+            'nit': forms.TextInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+            'nombre': forms.TextInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+            'representanteLegal': forms.TextInput(
+                attrs={
+                        'class':'form-control'
+                    }
+            ),
+            'cuposMoto': forms.NumberInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+            'cuposCarro': forms.NumberInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+        }
+
+class RegistroEntradaDeleteForm(forms.ModelForm):
+    class Meta:
+        model = RegistroEntrada
+        fields = ['observaciones']
+        labels = {
+            'observaciones':'¿Motivo de la eliminación?'
+        }
+        widgets = {
+            'observaciones': forms.Select(
+                attrs={
+                    'class':'form-control'
+                }
+            )
         }

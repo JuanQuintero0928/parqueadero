@@ -1,21 +1,22 @@
 {% extends 'index.html' %}
 {% block titulo %}
-    Crear Entrada Vehiculo
+    ELiminar Registro Entrada
 {% endblock titulo%}
 {% block tituloPrincipal %}
-    Creacion de Entrada Vehiculo
+    Eliminar Registro Entrada
 {% endblock tituloPrincipal %}
 {% block tituloSecundario %}
-    Formulario
+    Formulario de validación
 {% endblock tituloSecundario %}
 {% block pagina_actual %}
     <div class="card-body card-block">
         <form method="post">
             {% csrf_token %}
+            <p>¿Esta Seguro que desea eliminar el registro entrada del vehiculo {{ object.placa }} ?<p>
             {{ form.as_p }}
             <div class="card-footer">
-                <button type="submit" class="btn btn-primary btn-sm">
-                    <i class="fa fa-dot-circle-o"></i> Guardar
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fa fa-dot-circle-o"></i> Eliminar
                 </button>
                 <button type="reset" class="btn btn-danger btn-sm">
                     <i class="fa fa-ban"></i> Borrar

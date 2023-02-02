@@ -16,8 +16,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/css/themify-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.2.0/css/flag-icon.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/estilos.css' %}">
 </head>
 
 <body>
@@ -37,10 +38,10 @@
                         <a href="{% url 'parking:listar_categoria' %}"><i class="menu-icon fa fa-cogs"></i>Categorias</a>
                     </li>
                     <li>
-                        <a href="{% url 'parking:listar_vehiculoregistrados' %}"><i class="menu-icon fa fa-cogs"></i>Vehiculos</a>
+                        <a href="{% url 'parking:listar_descuento' %}"><i class="menu-icon fa fa-cogs"></i>Descuentos</a>
                     </li>
                     <li>
-                        <a href="{% url 'parking:listar_descuento' %}"><i class="menu-icon fa fa-cogs"></i>Descuentos</a>
+                        <a href="{% url 'parking:listar_vehiculoregistrados' %}"><i class="menu-icon fa fa-cogs"></i>Vehiculos</a>
                     </li>
                     <li class="menu-title">Procesos</li>
                     <li>
@@ -120,22 +121,37 @@
                                     {% block alertas %}
                                         {% for message in messages%}
                                             {% if message.tags == 'error'%}
-                                            <div class="alert alert-success d-flex align-items-center fade show" role="alert">
-                                                <strong></strong>{{ message}}
-                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                            </div>
+                                                <div class="sufee-alert alert with-close alert-danger alert-dismissible fade show">
+                                                    <span class="badge badge-pill badge-danger">Algo salio mal</span>
+                                                    {{ message }}
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
                                             {% endif%}
                                             {% if message.tags == 'info'%}
-                                            <div class="alert alert-success d-flex align-items-center fade show" role="alert">
-                                                <strong></strong>{{ message}}
-                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                            </div>
+                                                <div class="sufee-alert alert with-close alert-success alert-dismissible fade show">
+                                                    <span class="badge badge-pill badge-success">Success</span>
+                                                    {{ message }}
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            {% endif%}
+                                            {% if message.tags == 'warning'%}
+                                                <div class="sufee-alert alert with-close alert-warning alert-dismissible fade show">
+                                                    <span class="badge badge-pill badge-warning">Advertencia</span>
+                                                    {{ message }}
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
                                             {% endif%}
                                         {% endfor %}
                                     {% endblock alertas %}
 
                                     {% block pagina_actual %}
-                                        {% if datoMoto and datoCarro %}
+                                        {% if datos %}
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
@@ -150,29 +166,27 @@
                                                         <td>Moto</td>
                                                         <td>{{ queryEmpresa.cuposMoto }}</td>
                                                         <td>
-                                                            {% for moto in datoMoto.values %}
-                                                                {{ moto }}
-                                                            {% endfor %}
+                                                            {{ datos.cupoMoto }}
                                                         </td>
-                                                        <td>{{ difmoto }}</td>
+                                                        <td>{{ datos.difMoto }}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Carro</td>
                                                         <td>{{ queryEmpresa.cuposCarro }}</td>
                                                         <td>
-                                                            {% for carro in datoCarro.values %}
-                                                                {{ carro }}
-                                                            {% endfor %}
+                                                            {{ datos.cupoCarro }}
                                                         </td>
-                                                        <td>{{ difcarro }}</td>
+                                                        <td>{{ datos.difCarro }}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         {% else %}
-                                            no hay datos
+                                            <div class="alert alert-warning" role="alert">
+                                                <h4 class="alert-heading">No existen registros!</h4>
+                                                <hr>
+                                            </div>
                                         {% endif %}
                                     {% endblock pagina_actual %}
-
                                 </div>
                             </div>
                         </div>

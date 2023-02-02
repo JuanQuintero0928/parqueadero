@@ -11,7 +11,7 @@
             Contenido
         </div>
         <div class="col-md-4">
-        <a href="{% url 'parking:crear_descuento' %}">Crear Descuentos</a>
+        <a href="{% url 'parking:crear_descuento' %}">Crear Descuento</a>
         </div>
     </div>
 {% endblock tituloSecundario %}
@@ -23,7 +23,7 @@
                         <th scope="col">ID</th>
                         <th scope="col">Tipo Descuento</th>
                         <th scope="col">Porcentaje</th>
-                        <th scope="col">Opciones</th>
+                        <th scope="col">Editar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,12 +32,15 @@
                         <th>{{ descuento.pk }}</th>
                         <td>{{ descuento.tipoDescuento }}</td>
                         <td>{{ descuento.porcentaje }}%</td>
-                        <td><a href="{% url 'parking:editar_descuento' descuento.pk %}">Editar</a></td>
+                        <td><a href="{% url 'parking:editar_descuento' descuento.pk %}"><i class="fa fa-edit"></i></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <h1>No existe Descuentos creados.</h1>
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">No existen registros!</h4>
+                <hr>
+            </div>
         {% endif %}
 {% endblock pagina_actual %}

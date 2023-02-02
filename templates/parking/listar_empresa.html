@@ -37,6 +37,9 @@
                 </tbody>
             </table>
         {% else %}
-            <h1>No existe Empresas creadas</h1>
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">No existen registros!</h4>
+                <hr>
+            </div>
         {% endif %}
 {% endblock pagina_actual %}

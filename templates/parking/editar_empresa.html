@@ -2,11 +2,27 @@
 {% block titulo %}
     Editar Empresa
 {% endblock titulo%}
+{% block tituloPrincipal %}
+    Edicion
+{% endblock tituloPrincipal %}
+{% block tituloSecundario %}
+    Formulario
+{% endblock tituloSecundario %}
 {% block pagina_actual %}
-Editar Empresa
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Guardar</button>
-    </form>
+
+    <div class="card-body card-block">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fa fa-dot-circle-o"></i> Guardar
+                </button>
+                <button type="reset" class="btn btn-danger btn-sm">
+                    <i class="fa fa-ban"></i> Borrar
+                </button>
+            </div>
+        </form>
+    </div>
+
 {% endblock pagina_actual %}

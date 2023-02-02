@@ -1,47 +1,66 @@
-from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from .models import Empresa, Categoria, VehiculoRegistrado, RegistroEntrada, Descuento, Factura
-from .forms import CategoriaForm, VehiculoRegistradoForm, RegistroEntradaForm, DescuentoForm, EmpresaForm
+from .forms import CategoriaForm, VehiculoRegistradoForm, RegistroEntradaForm, DescuentoForm, EmpresaForm, RegistroEntradaDeleteForm
 from datetime import datetime
 import math
 
 # Create your views here.
 
+# Funcion para obtener el numero de carros estacionados.
 def calculoParqCarro():
     objCarro = VehiculoRegistrado.objects.filter(estadoParqueadero = True).exclude(tipo_id = 1)
     numCarros = len(objCarro)
     datoCarro = {'numCarros':numCarros}
     return (datoCarro)
 
+# Funcion para obtener el numero de motos estacionados.
 def calculoParqMoto():
     objMoto = VehiculoRegistrado.objects.filter(estadoParqueadero = True, tipo_id = 1)
     numMotos = len(objMoto)
     datosMoto ={'numMotos':numMotos}
     return (datosMoto)
 
+def cupoActual():
+    cupoMoto = 0
+    cupoCarro = 0
+    cuposActual = VehiculoRegistrado.objects.filter(estadoParqueadero = True)
+    for obj in cuposActual:
+        if obj.tipo.cupoEspacio == 'moto':
+            cupoMoto = cupoMoto + 1
+        else:
+            cupoCarro = cupoCarro + 1
+    datos = {
+        'moto':cupoMoto,
+        'vehiculo':cupoCarro
+    }
+    return datos
+
 class Inicio(TemplateView):
-    template_name = 'index.html'
-
-def inicio(request):
-    datoMoto = calculoParqMoto()
-    datoCarro = calculoParqCarro()
-    queryEmpresa = Empresa.objects.get(pk=1)
-    for moto in datoMoto.values():
-        actualMoto = moto
-    for carro in datoCarro.values():
-        actualCarro = carro
-    difmoto = queryEmpresa.cuposMoto - actualMoto
-    difcarro = queryEmpresa.cuposCarro - actualCarro
-
-    return render(request, 'index.html', {'datoMoto':datoMoto,'datoCarro':datoCarro,'queryEmpresa':queryEmpresa, 'difmoto':difmoto, 'difcarro':difcarro})
+    def get(self, request, *args, **kwargs):
+        dato = cupoActual()
+        queryEmpresa = Empresa.objects.get(pk=1)
+        cupoMoto = dato['moto']
+        cupoCarro = dato['vehiculo']
+        difMoto = queryEmpresa.cuposMoto - dato['moto']
+        difCarro = queryEmpresa.cuposCarro - dato['vehiculo']
+        datos = {
+            'cupoMoto':cupoMoto,
+            'cupoCarro':cupoCarro,
+            'difMoto':difMoto,
+            'difCarro':difCarro
+        }
+        return render(request, 'index.html', {'queryEmpresa':queryEmpresa, 'datos':datos})
 
 class ListarEmpresa(ListView):
     model = Empresa
     template_name = 'parking/listar_empresa.html'
     context_object_name = 'empresas'
-    queryset = Empresa.objects.filter(estado = True)
+    queryset = Empresa.objects.filter(estado = True).order_by('pk')
 
 class EditarEmpresa(UpdateView):
     model = Empresa
@@ -53,13 +72,14 @@ class ListarCategoria(ListView):
     model = Categoria
     template_name = 'parking/listar_categoria.html'
     context_object_name = 'categorias'
-    queryset = Categoria.objects.filter(estado = True)
+    queryset = Categoria.objects.filter(estado = True).order_by('pk')
 
-class CrearCategoria(CreateView):
+class CrearCategoria(CreateView, SuccessMessageMixin):
     model = Categoria
     form_class = CategoriaForm
     template_name = 'parking/crear_categoria.html'
     success_url = reverse_lazy('parking:listar_categoria')
+    success_message = "Creado exitosamente"
 
 class EditarCategoria(UpdateView):
     model = Categoria
@@ -71,92 +91,172 @@ class ListarVehiculoRegistrado(ListView):
     model = VehiculoRegistrado
     template_name = 'parking/listar_vehiculoregistro.html'
     context_object_name = 'vehiculosregistrados'
-    queryset = VehiculoRegistrado.objects.filter(estado = True)
+    queryset = VehiculoRegistrado.objects.filter(estado = True).order_by('pk')
 
 class CrearVehiculo(CreateView):
-    model = VehiculoRegistrado
-    form_class = VehiculoRegistradoForm
-    template_name = 'parking/crear_vehiculoregistrado.html'
-    success_url = reverse_lazy('parking:listar_vehiculoregistrados')
+
+    def get(self, request, *args, **kwargs):
+        context = {'form': VehiculoRegistradoForm()}
+        return render(request, 'parking/crear_vehiculoregistrado.html', context)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            formulario = VehiculoRegistradoForm(request.POST)
+            if formulario.is_valid():
+                obj = VehiculoRegistrado()
+                obj.placa = formulario.cleaned_data['placa'].upper()                   # Si la placa se escribe en minusculas, la pasamos a mayusculas para realizar la consulta    
+                query = VehiculoRegistrado.objects.filter(placa = obj.placa).count()   # Si la consulta no obtiene coincidencia automaticamente arroja error y entra al expecion que redirije al formulario
+                if query == 0:
+                    obj.tipo = formulario.cleaned_data['tipo']
+                    obj.descuento = formulario.cleaned_data['descuento']
+                    obj.save()
+                    messages.info(request, 'Vehiculo creado exitosamente.')
+                    return HttpResponseRedirect(reverse_lazy('parking:listar_vehiculoregistrados'))
+                else:
+                    messages.warning(request,'El vehiculo ya se encuentra en la base de datos.')
+                    return render(request, 'parking/crear_vehiculoregistrado.html', {'form': formulario})
+            else:
+                messages.warning(request,'Falta informacion en el formulario.')
+                return render(request, 'parking/crear_vehiculoregistrado.html',{'form': formulario})
+        except Exception as e:
+            messages.error(request,'Algo salio mal, contactar con el administrador.')
+            return render(request, 'parking/crear_vehiculoregistrado.html', {'form': formulario})
 
 class EditarVehiculo(UpdateView):
-    model = VehiculoRegistrado
-    form_class = VehiculoRegistradoForm
-    template_name = 'parking/crear_vehiculoregistrado.html'
-    success_url = reverse_lazy('parking:listar_vehiculoregistrados')
+    # model = VehiculoRegistrado
+    # form_class = VehiculoRegistradoForm
+    # template_name = 'parking/crear_vehiculoregistrado.html'
+    # success_url = reverse_lazy('parking:listar_vehiculoregistrados')
+
+    def get(self, request, pk, *args, **kwargs):
+        form_update = get_object_or_404(VehiculoRegistrado, pk=pk)          # Por medio del get_object_or_404, envio el modelo seguido de la validacion
+        form = VehiculoRegistradoForm(initial={'tipo':form_update.tipo, 'placa':form_update.placa, 'descuento':form_update.descuento})  # Se inician las variables para mostrarlas en el formulario
+        return render(request, 'parking/crear_vehiculoregistrado.html', {'form':form})
+    
+    def post(self, request, pk, *args, **kwargs):
+        try:
+            formulario = VehiculoRegistradoForm(request.POST)
+            if formulario.is_valid():
+                obj = VehiculoRegistrado.objects.get(pk=pk)                 # Obtengo el objeto a actualizar
+                placaDigitada = formulario.cleaned_data['placa'].upper()    # Variable con placa digitada en mayuscula
+                if obj.placa == placaDigitada:
+                    obj.tipo = formulario.cleaned_data['tipo']
+                    obj.descuento = formulario.cleaned_data['descuento']
+                    obj.save()
+                    messages.info(request, 'Vehiculo actualizado con exito.')
+                    return HttpResponseRedirect(reverse_lazy('parking:listar_vehiculoregistrados'))
+                else:
+                    obj.placa = formulario.cleaned_data['placa'].upper()
+                    obj.tipo = formulario.cleaned_data['tipo']
+                    obj.descuento = formulario.cleaned_data['descuento']
+                    obj.save()
+                    messages.info(request, 'Vehiculo actualizado con exito.')
+                    return HttpResponseRedirect(reverse_lazy('parking:listar_vehiculoregistrados'))
+            else:
+                messages.warning(request,'El vehiculo ya se encuentra en la base de datos.')
+                return render(request,'parking/crear_vehiculoregistrado.html', {'form': formulario})
+        except Exception as e:
+            messages.error(request, 'Algo salio mal, contactar con el administrador.')
+            return render(request, 'parking/crear_vehiculoregistrado.html', {'form': formulario})
 
 class ListarRegistroEntrada(ListView):
     model = RegistroEntrada
     template_name = 'parking/listar_registroentrada.html'
     context_object_name = 'registrosentradas'
-    queryset = RegistroEntrada.objects.filter(estado = False)
+    queryset = RegistroEntrada.objects.filter(estado = False, eliminado = False).order_by('pk')
 
 class CrearRegistroEntrada(CreateView):
-    model = RegistroEntrada
-    form_class = RegistroEntradaForm
-    template_name = 'parking/crear_registroentrada.html'
-    success_url = reverse_lazy('parking:registro_entrada')
+    # model = RegistroEntrada
+    # form_class = RegistroEntradaForm
+    # template_name = 'parking/crear_registroentrada.html'
+    # success_url = reverse_lazy('parking:registro_entrada')
 
-    def _get_queryset(self):    # Retorna la consulta
-        return self.model.objects.filter(estado=False)
-
-    def get_context_data(self, **kwargs):   #Retorna la informacion que va hacer enviada al Template
-        # estado = VehiculoRegistrado()
-        # estado.estadoParqueadero = True
-        context = {}
-        context['registros'] = self._get_queryset
-        context['form'] = self.form_class   #Envio el formulario al template
-        context['model'] = self.model
-        return context
-    
-    def get(self, request, *args, **kwargs):    # Retorna toda la informacion cuando se hace la peticion
-        return render(request, self.template_name, self.get_context_data())
-    
-def crearRegistroEntrada(request):
-    if request.method == 'POST':
-        formulario = RegistroEntradaForm(request.POST)
-        if formulario.is_valid():
-            objeto = RegistroEntrada()
-            objeto.placa = formulario.cleaned_data['placa']
-            objetoVehiculo = VehiculoRegistrado.objects.get(placa = objeto.placa)
-            objetoVehiculo.estadoParqueadero = True
-            cupoTotal = Empresa.objects.get(pk = 1)
-            if objetoVehiculo.tipo_id == 1:
-                cupoActualMoto = calculoParqMoto()
-                for cupo in cupoActualMoto.values():
-                    cupoMoto = cupo
-                if cupoMoto < cupoTotal.cuposMoto:
-                    objeto.save()           #Crea el registro entrada
-                    objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
-                    messages.info(request,'Moto registrada con exito.')
-                    return redirect('parking:crear_registroEntrada')
-                else:
-                    messages.error(request,'Parqueadero lleno para motos.')
-                    return redirect('parking:crear_registroEntrada')
-            else:
-                cupoActualCarro = calculoParqCarro()
-                for cupo in cupoActualCarro.values():
-                    cupoCarro = cupo
-                if cupoCarro < cupoTotal.cuposCarro:
-                    objeto.save()           #Crea el registro entrada
-                    objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
-                    messages.info(request,'Vehiculo registrada con exito.')
-                    return redirect('parking:crear_registroEntrada')
-                else:
-                    messages.error(request,'Parqueadero lleno para carro.')
-                    return redirect('parking:crear_registroEntrada')
-        else:
-            messages.error(request,'Error al guardar la información, validar nuevamente los datos ingresados.')
-            return redirect('parking:crear_registroEntrada')
-    else:
+    def get(self, request, *args, **kwargs):
         formulario = RegistroEntradaForm()
-        return render(request, 'parking/crear_registroentrada.html', {'form':formulario})
+        return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+    
+    def post(self, request, *args, **kwargs):
+        formulario = RegistroEntradaForm(request.POST)
+        try:
+            if formulario.is_valid():
+                placaEscrita = formulario.cleaned_data['placa'].upper()
+                objVehiculo = VehiculoRegistrado.objects.get(placa = placaEscrita)          # Si la consulta no encuentra coincidencias, va al excepcion
+                if objVehiculo.estadoParqueadero == False:
+                    cuposTotal = Empresa.objects.get(pk=1)                                      #Solo sirve con una empresa
+                    if objVehiculo.tipo_id == 1:                                                # Ojo, valor quemado
+                        cupoActual = calculoParqMoto()                                          # Funcion que calcula el numero de motos estacionadas actualmente                                                         
+                        for cupo in cupoActual.values():
+                            cupoMoto = cupo
+                        if cupoMoto < cuposTotal.cuposMoto:
+                            obj = RegistroEntrada()
+                            obj.placa = objVehiculo
+                            objVehiculo.estadoParqueadero = True
+                            obj.save()                                                          # Objeto del modelo RegistroEntrada
+                            objVehiculo.save()                                                  # Objeto del modelo Empresa
+                            messages.info(request, 'Moto registrada con exito.')
+                            return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
+                        else:
+                            messages.warning(request, 'Parqueadero lleno para motos')
+                            return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+                    else:
+                        cupoActual = calculoParqCarro()
+                        for cupo in cupoActual.values():
+                            cupoCarro = cupo
+                        if cupoCarro < cuposTotal.cuposCarro:
+                            obj = RegistroEntrada()
+                            obj.placa = objVehiculo
+                            objVehiculo.estadoParqueadero = True
+                            obj.save()
+                            objVehiculo.save()
+                            messages.info(request, 'Carro registrado con exito.')
+                            return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
+                        else:
+                            messages.warning(request, 'Parqueadero lleno para carros')
+                            return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+                else:
+                    messages.warning(request,'El vehiculo ya esta dentro del parqueadero.')
+                    return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+            else:
+                messages.warning(request, 'Validar informacion suministrada en el formulario.')
+                return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+        except Exception as e:
+            print(e)
+            messages.warning(request, 'El vehiculo no se encuentra registrado.')
+            return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+
+class EliminarRegistroEntrada(DeleteView):
+    model = RegistroEntrada
+    template_name = 'parking/eliminar_registroEntrada.html'
+    # success_url = reverse_lazy('parking:registro_entrada')
+
+    def get(self, request, pk, *args, **kwargs):
+        form = RegistroEntradaDeleteForm()
+        return render(request, self.template_name, {'object': self.model.objects.get(pk=pk), 'form': form})
+    
+    def post(self, request, pk, *args, **kwargs):
+        formulario = RegistroEntradaDeleteForm(request.POST)
+        if formulario.is_valid():
+            objetoRegistro = RegistroEntrada.objects.get(pk=pk)
+            objetoRegistro.observaciones = formulario.cleaned_data['observaciones']
+            if not objetoRegistro.observaciones:
+                messages.warning(request, 'Debe selecionar una opcion para la eliminación.')
+                return render(request, 'parking/eliminar_registroEntrada.html', {'form': formulario})
+            else:
+                objetoRegistro.eliminado = True
+                objetoRegistro.placa.estadoParqueadero = False
+                objetoRegistro.save()
+                objetoRegistro.placa.save()
+                messages.info(request, 'Eliminado con exito')
+                return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
+        else:
+            messages.warning(request, 'Validar nuevamente el formulario')
+            return render(request, self.template_name, {'object': self.model.objects.get(pk=pk), 'form': formulario})
 
 class ListarDescuento(ListView):
     model = Descuento
     template_name = 'parking/listar_descuentos.html'
     context_object_name = 'descuentos'
-    queryset = Descuento.objects.all()
+    queryset = Descuento.objects.all().order_by('pk')
 
 class CrearDescuento(CreateView):
     model = Descuento
@@ -171,10 +271,15 @@ class EditarDescuento(UpdateView):
     success_url = reverse_lazy('parking:listar_descuento')
 
 class ListarFactura(ListView):
-    model = Factura
-    template_name = 'parking/listar_factura.html'
-    context_object_name = 'facturas'
-    queryset = Factura.objects.all()
+    # model = Factura
+    # template_name = 'parking/listar_factura.html'
+    # context_object_name = 'facturas'
+    # queryset = Factura.objects.all().order_by('pk')
+
+    def get(self, request, *args, **kwargs):
+        queryset = Factura.objects.all().order_by('pk')
+        context = {'facturas': queryset}
+        return render(request, 'parking/listar_factura.html', context)
 
 # ---------------------------------------------------------------------------
 #Queda pendiente el modulo de facturas hacerlo por medio de una clase
@@ -238,3 +343,53 @@ def crearFactura(request, pk):
         messages.info(request,'Factura realizada con exito.')
         return redirect('parking:registro_entrada')
     return render(request, 'parking/facturar.html', {'datos':datos})
+
+# ------------------------EJEMPLO DE VISTAS BASADAS EN CLASES---------------------------------------------------
+def crearRegistroEntrada(request):
+    if request.method == 'POST':
+        formulario = RegistroEntradaForm(request.POST)
+        if formulario.is_valid():
+            try:
+                objeto = RegistroEntrada()
+                placaEscrita = formulario.cleaned_data['placa']
+                objetoVehiculo = VehiculoRegistrado.objects.get(placa = placaEscrita)
+                objeto.placa = objetoVehiculo
+                if objetoVehiculo.estadoParqueadero == True:
+                    messages.warning(request,'El vehiculo esta dentro del parqueadero, validar información.')
+                    return redirect('parking:crear_registroEntrada')
+                else:
+                    objetoVehiculo.estadoParqueadero = True
+                    cupoTotal = Empresa.objects.get(pk = 1)
+                    if objetoVehiculo.tipo_id == 1:
+                        cupoActualMoto = calculoParqMoto()
+                        for cupo in cupoActualMoto.values():
+                            cupoMoto = cupo
+                        if cupoMoto < cupoTotal.cuposMoto:
+                            objeto.save()           #Crea el registro entrada
+                            objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
+                            messages.info(request,'Moto registrada con exito.')
+                            return redirect('parking:registro_entrada')
+                        else:
+                            messages.warning(request,'Parqueadero lleno para motos.')
+                            return redirect('parking:crear_registroEntrada')
+                    else:
+                        cupoActualCarro = calculoParqCarro()
+                        for cupo in cupoActualCarro.values():
+                            cupoCarro = cupo
+                        if cupoCarro < cupoTotal.cuposCarro:
+                            objeto.save()           #Crea el registro entrada
+                            objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
+                            messages.info(request,'Vehiculo registrada con exito.')
+                            return redirect('parking:registro_entrada')
+                        else:
+                            messages.warning(request,'Parqueadero lleno para carro.')
+                            return redirect('parking:crear_registroEntrada')
+            except Exception as e:
+                messages.warning(request,'El vehiculo no se encuentra registrado en la base de datos, primero debe crearlo para continuar con el proceso')
+                return redirect('parking:crear_registroEntrada')
+        else:
+            messages.error(request,'Error al guardar la información, validar nuevamente los datos ingresados.')
+            return redirect('parking:crear_registroEntrada')
+    else:
+        formulario = RegistroEntradaForm()
+        return render(request, 'parking/crear_registroentrada.html', {'form':formulario})

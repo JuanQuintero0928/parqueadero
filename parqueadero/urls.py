@@ -25,5 +25,6 @@ urlpatterns = [
     path('', login_required(Inicio.as_view()), name='inicio'),
     path('accounts/login/',LoginView.as_view(template_name='login.html'), name='login'),
     path('parking/',include(('parking.urls','parking'))),
+    path("reportes/", include(('reportes.urls','reportes'))),
     path('logout/', logout_then_login, name='logout'),
 ]

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura | {{ factura.pk }}</title>
+</head>
+<style>
+    
+</style>
+<body>
+    <table>
+        <tbody>
+            <tr>
+                <th><h1>{{ empresa.nombre }}</h1></th>
+            </tr>
+            <tr>
+                <th><h1>NIT: {{ empresa.nit }}</h1></th>
+            </tr>
+            <tr>
+                <th><h1>{{ empresa.direccion }} , {{ empresa.ciudad }}</h1></th>
+            </tr>
+            <tr></tr><tr></tr>
+            <tr>
+                <td><h2>Número de factura: {{ factura.pk }}</h2></td>
+            </tr>
+            <tr>
+                <td><h2>Placa: {{ factura.registroEntrada.placa }}</h2></td>
+            </tr>
+            <tr>
+                <td><h2>Tipo Vehiculo: {{ factura.registroEntrada.placa.tipo }} </h2></td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <table style="text-align: center;">
+        <tbody>
+            <tr>
+                <td>
+                    <h2>Fecha y hora Ingreso:</h2>
+                </td>
+                <td>
+                    <h2>Fecha y hora Salida:</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>{{ factura.registroEntrada.horaIngreso }}</h2>
+                </td>
+                <td>
+                    <h2>{{ factura.horaSalida }}</h2>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <table style="text-align: center;">
+        <tbody>
+            <tr>
+                <td colspan="3">
+                    <h2>Tiempo en parqueadero</h2>
+                </td>
+            </tr>
+            <tr>
+                <td><h2>Dias</h2></td>
+                <td><h2>Horas</h2></td>
+                <td><h2>Minutos</h2></td>
+            </tr>
+            <tr>
+                <td><h2>pte</h2></td>
+                <td><h2>pte</h2></td>
+                <td><h2>pte</h2></td>
+            </tr>
+            <tr></tr>
+            <tr>
+                <td><h2>Total a pagar:</h2></td>
+                <td></td>
+                <td><h2>${{ factura.valorPagar }}</h2></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

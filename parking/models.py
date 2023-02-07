@@ -11,6 +11,8 @@ class Empresa(models.Model):
     cuposMoto = models.PositiveIntegerField('Cupos Moto', blank=False, null=False)
     cuposCarro = models.PositiveIntegerField('Cupos Autos', blank=False, null=False)
     estado = models.BooleanField('Activo/Desactivo', default=True)
+    direccion = models.CharField('Direccion', max_length=100, default="")
+    ciudad = models.CharField('Ciudad/Dpto', max_length=100, default="")
 
     def __str__(self):
         return self.nombre

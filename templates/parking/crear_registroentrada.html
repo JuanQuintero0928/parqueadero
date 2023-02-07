@@ -1,26 +1,20 @@
-{% extends 'index.html' %}
-{% block titulo %}
-    Crear Entrada Vehiculo
-{% endblock titulo%}
-{% block tituloPrincipal %}
-    Creacion de Entrada Vehiculo
-{% endblock tituloPrincipal %}
-{% block tituloSecundario %}
-    Formulario
-{% endblock tituloSecundario %}
-{% block pagina_actual %}
-    <div class="card-body card-block">
-        <form method="post">
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Creación de Registro Entrada</h2>
+            <button class="close" type="button" data-dismiss = "modal" aria-label="close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'parking:crear_registroEntrada' %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary btn-sm">
-                    <i class="fa fa-dot-circle-o"></i> Guardar
-                </button>
-                <button type="reset" class="btn btn-danger btn-sm">
-                    <i class="fa fa-ban"></i> Borrar
-                </button>
+            <div class="modal-body">
+                {{ form.as_p }}
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" type="button" data-dismiss = "modal">Cancelar</button>
+                <button class="btn btn-primary" type="submit">Confirmar</button>
             </div>
         </form>
     </div>
-{% endblock pagina_actual %}
+</div>

@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, View
 from django.urls import reverse_lazy
+from django.http import HttpResponse
+from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -90,8 +92,13 @@ class EditarCategoria(UpdateView):
 class ListarVehiculoRegistrado(ListView):
     model = VehiculoRegistrado
     template_name = 'parking/listar_vehiculoregistro.html'
-    context_object_name = 'vehiculosregistrados'
-    queryset = VehiculoRegistrado.objects.filter(estado = True).order_by('pk')
+
+    def get(self, request, *args, **kwargs):
+        query = self.model.objects.filter(estado =True).order_by('pk')
+        paginator = Paginator(query,7)
+        page = request.GET.get('page')
+        query = paginator.get_page(page)
+        return render(request, self.template_name, {'datos':query})
 
 class CrearVehiculo(CreateView):
 
@@ -162,8 +169,13 @@ class EditarVehiculo(UpdateView):
 class ListarRegistroEntrada(ListView):
     model = RegistroEntrada
     template_name = 'parking/listar_registroentrada.html'
-    context_object_name = 'registrosentradas'
-    queryset = RegistroEntrada.objects.filter(estado = False, eliminado = False).order_by('pk')
+    
+    def get(self, request, *args, **kwargs):
+        query = self.model.objects.filter(estado = False, eliminado = False)
+        paginator = Paginator(query,7)
+        page = request.GET.get('page')
+        query = paginator.get_page(page)
+        return render (request, self.template_name, {'datos':query})
 
 class CrearRegistroEntrada(CreateView):
     # model = RegistroEntrada
@@ -197,7 +209,7 @@ class CrearRegistroEntrada(CreateView):
                             return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
                         else:
                             messages.warning(request, 'Parqueadero lleno para motos')
-                            return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+                            return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
                     else:
                         cupoActual = calculoParqCarro()
                         for cupo in cupoActual.values():
@@ -212,17 +224,17 @@ class CrearRegistroEntrada(CreateView):
                             return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
                         else:
                             messages.warning(request, 'Parqueadero lleno para carros')
-                            return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+                            return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
                 else:
                     messages.warning(request,'El vehiculo ya esta dentro del parqueadero.')
-                    return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+                    return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
             else:
                 messages.warning(request, 'Validar informacion suministrada en el formulario.')
-                return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+                return render(request, 'parking/listar_registroentrada.html', {'form': formulario})
         except Exception as e:
             print(e)
             messages.warning(request, 'El vehiculo no se encuentra registrado.')
-            return render(request, 'parking/crear_registroentrada.html', {'form': formulario})
+            return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
 
 class EliminarRegistroEntrada(DeleteView):
     model = RegistroEntrada
@@ -269,17 +281,6 @@ class EditarDescuento(UpdateView):
     form_class = DescuentoForm
     template_name = 'parking/crear_descuento.html'
     success_url = reverse_lazy('parking:listar_descuento')
-
-class ListarFactura(ListView):
-    # model = Factura
-    # template_name = 'parking/listar_factura.html'
-    # context_object_name = 'facturas'
-    # queryset = Factura.objects.all().order_by('pk')
-
-    def get(self, request, *args, **kwargs):
-        queryset = Factura.objects.all().order_by('pk')
-        context = {'facturas': queryset}
-        return render(request, 'parking/listar_factura.html', context)
 
 # ---------------------------------------------------------------------------
 #Queda pendiente el modulo de facturas hacerlo por medio de una clase

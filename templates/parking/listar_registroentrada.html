@@ -11,12 +11,18 @@
             Contenido
         </div>
         <div class="col-md-4">
-        <a href="{% url 'parking:crear_registroEntrada' %}">Registrar Entrada</a>
+        <!-- <a href="{% url 'parking:crear_registroEntrada' %}">Registrar Entrada</a> -->
+        <button class="btn btn-primary" type="button" onclick="abrir_modal_creacion('{% url 'parking:crear_registroEntrada' %}')">Crear Registro Entrada</button>
         </div>
+        <div>
+
+
+
+        </div>  
     </div>
 {% endblock tituloSecundario %}
 {% block pagina_actual %}
-    {% if registrosentradas %}
+    {% if datos %}
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -29,7 +35,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for registroentrada in registrosentradas %}
+                {% for registroentrada in datos %}
                 <tr>
                     <th>{{ registroentrada.pk }}</th>
                     <td>{{ registroentrada.horaIngreso }}</td>
@@ -47,4 +53,19 @@
             <hr>
         </div>
     {% endif %}
+
+    <div class="modal fade" id="creacion" role="dialog">
+        <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
+    </div>
+
 {% endblock pagina_actual%}
+{% block extrajs %}
+<script type="text/javascript">
+    var $ = jQuery.noConflict()
+    function abrir_modal_creacion(url){
+        $('#creacion').load(url, function(){
+            $(this).modal('show');
+        });
+    }
+</script>
+{% endblock extrajs %}

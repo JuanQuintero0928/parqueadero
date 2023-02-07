@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Consolidado</title>
+</head>
+<style>
+    .tabla{
+        /* border: 1px solid black; */
+        text-align: center;
+        /* vertical-align: bottom; */
+    }
+    /* .titulos{
+        vertical-align: bottom;
+        color: red;
+    } */
+</style>
+<body>
+    <h1>Informe detallado de facturas</h1>
+    <h2>{{ empresa.nombre }}</h2>
+    <h2>{{ empresa.nit }}</h2>
+    <h2>{{ empresa.direccion }}, {{ empresa.ciudad }}</h2>
+    <br>    
+    {% if facturas %}
+        <table class="tabla">
+            <tbody>
+                <th class="titulos">N° Factura</th>
+                <th>Placa</th>
+                <th>Tipo Vehiculo</th>
+                <th>Tipo Descuento</th>
+                <th>Valor pagado</th>
+            </tbody>
+            <thead>
+                {% for factura in facturas %}
+                    <tr>
+                        <td> {{ factura.pk }}</td>
+                        <td> {{ factura.registroEntrada.placa }}</td>
+                        <td> {{ factura.registroEntrada.placa.tipo }}</td>
+                        <td> {{ factura.registroEntrada.placa.descuento }} </td>
+                        <td> {{ factura.valorPagar }}</td>
+                    </tr>
+                {% endfor %}
+            </thead>
+        </table>
+    {% else %}
+        <h1>No existen facturas</h1>
+    {% endif %}
+</body>
+</html>

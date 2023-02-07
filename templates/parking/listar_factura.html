@@ -11,6 +11,15 @@
             Contenido
         </div>
         <div class="col-md-4">
+            <div class="user-area dropdown float-right">
+                <a href="#" class="dropdown" data-toggle="dropdown"  aria-expanded="false">
+                    Descargar en formato <i class="fa fa-bars"></i>
+                </a>
+                <div class="user-menu dropdown-menu">
+                    <a class="nav-link" href="{% url 'reportes:generarInformeTotal' %}">PDF <i class="fa fa-file-pdf-o"></i></a>
+                    <a class="nav-link" href="{% url 'reportes:generarInformeTotalExcel' %}">Excel <i class="fa fa-file-excel-o"></i></a>   
+                </div>
+            </div>
         </div>
     </div>
 {% endblock tituloSecundario %}
@@ -25,7 +34,7 @@
                         <th scope="col">Placa</th>
                         <th scope="col">Valor Pagado</th>
                         <th scope="col">Estado</th>
-                        <th scope="col">Prueba</th>
+                        <th scope="col">PDF</th>
                     </tr>
                 </thead>
                 {% for factura in facturas %}
@@ -37,7 +46,7 @@
                             <td>{{ factura.registroEntrada.placa }}</td>
                             <td>${{ factura.valorPagar }}</td>
                             <td>{{ factura.estado }}</td>
-                            <td>{{ factura.registroEntrada.placa.tipo.tipo }}</td>
+                            <td><a href="{% url 'reportes:generarFactura' factura.pk %}"><i class="fa fa-download"></i></a></td>
                         </tr>
                     </tbody>
                 {% endfor %}

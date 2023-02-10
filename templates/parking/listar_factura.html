@@ -1,4 +1,5 @@
-{% extends 'index.html' %}
+{% extends 'parking/listar.html' %}
+{% load static %}
 {% block titulo %}
     Facturas
 {% endblock titulo %}
@@ -23,38 +24,28 @@
         </div>
     </div>
 {% endblock tituloSecundario %}
-{% block pagina_actual %}
-        {% if facturas %}
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Hora Entrada</th>
-                        <th scope="col">Hora Salida</th>
-                        <th scope="col">Placa</th>
-                        <th scope="col">Valor Pagado</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col">PDF</th>
-                    </tr>
-                </thead>
-                {% for factura in facturas %}
-                    <tbody>
-                        <tr>
-                            <th>{{ factura.pk }}</th>
-                            <td>{{ factura.registroEntrada.horaIngreso }}</td>
-                            <td>{{ factura.horaSalida }}</td>
-                            <td>{{ factura.registroEntrada.placa }}</td>
-                            <td>${{ factura.valorPagar }}</td>
-                            <td>{{ factura.estado }}</td>
-                            <td><a href="{% url 'reportes:generarFactura' factura.pk %}"><i class="fa fa-download"></i></a></td>
-                        </tr>
-                    </tbody>
-                {% endfor %}
-            </table>
-        {% else %}
-            <div class="alert alert-warning" role="alert">
-                <h4 class="alert-heading">No existen registros!</h4>
-                <hr>
-            </div>
-        {% endif%}
-{% endblock pagina_actual %}
+
+{% block thead %}
+    <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Hora Entrada</th>
+        <th scope="col">Hora Salida</th>
+        <th scope="col">Placa</th>
+        <th scope="col">Valor Pagado</th>
+        <th scope="col">Estado</th>
+        <th scope="col">PDF</th>
+    </tr>
+{% endblock thead %}
+{% block tbody %}
+    {% for factura in facturas %}
+        <tr>
+            <th>{{ factura.pk }}</th>
+            <td>{{ factura.registroEntrada.horaIngreso }}</td>
+            <td>{{ factura.horaSalida }}</td>
+            <td>{{ factura.registroEntrada.placa }}</td>
+            <td>${{ factura.valorPagar }}</td>
+            <td>{{ factura.estado }}</td>
+            <td><a href="{% url 'reportes:generarFactura' factura.pk %}"><i class="fa fa-download"></i></a></td>
+        </tr>
+    {% endfor %}
+{% endblock tbody %}

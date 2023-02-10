@@ -1,5 +1,5 @@
 from django import forms
-from .models import Categoria, RegistroEntrada, Descuento, VehiculoRegistrado, Empresa
+from .models import Categoria, RegistroEntrada, Descuento, VehiculoRegistrado, Empresa, Factura
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
@@ -140,3 +140,49 @@ class RegistroEntradaDeleteForm(forms.ModelForm):
                 }
             )
         }
+
+class FacturaForm(forms.ModelForm):
+    class Meta:
+        model = Factura
+        fields = ("valorPagar", "diasEstacionado", "horasEstacionado", "minutosEstaciondo", "valorSinDescuento", "descuento")
+        widgets = {
+            'valorPagar': forms.NumberInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+            'diasEstacionado': forms.NumberInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+            'horasEstacionado': forms.NumberInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+            'minutosEstaciondo': forms.NumberInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+            'valorSinDescuento': forms.NumberInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+            'descuento': forms.NumberInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+        }
+
+class VehiculoConsultaForm(forms.ModelForm):
+    class Meta:
+        model = VehiculoRegistrado
+        fields = ['placa']
+        widgets = {
+            'placa' : forms.TextInput()
+        }
+

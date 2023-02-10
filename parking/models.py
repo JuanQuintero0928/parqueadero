@@ -91,6 +91,11 @@ class Factura(models.Model):
     horaSalida = models.DateTimeField('Fecha y Hora', auto_now=False, auto_now_add=True)
     valorPagar = models.FloatField('Valor a Pagar', blank=False, null=False)
     estado = models.BooleanField('Activo/Desactivo', default=True)
+    diasEstacionado = models.IntegerField('Dias Estacionado', blank=False, null=False)
+    horasEstacionado = models.IntegerField('Horas Estacionado', blank=False, null=False)
+    minutosEstaciondo = models.IntegerField('Minutos Estacionado', blank=False, null=False)
+    valorSinDescuento = models.IntegerField('Valor sin descuento', blank=False, null=False)
+    descuento = models.IntegerField('Valor Descuento', blank=False, null=False)
 
     def __str__(self):
         return self.registroEntrada

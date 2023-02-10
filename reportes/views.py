@@ -69,19 +69,24 @@ class GenerarInformeTotalExcel(TemplateView):
         wb = Workbook() #Creamos la instancia del Workbook
         ws = wb.active
         ws['A1'] = 'Reporte de Facturas'    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:I1')
+        ws.merge_cells('A1:N1')
 
         ws['A2'] = 'numero factura'
         ws['B2'] = 'placa'
         ws['C2'] = 'categoria'
-        ws['D2'] = 'descuento'
+        ws['D2'] = 'tipo descuento'
         ws['E2'] = 'porcentaje descuento'
         ws['F2'] = 'tarifa'
         ws['G2'] = 'fecha ingreso'
         ws['H2'] = 'fecha salida'
-        ws['I2'] = 'valor pagado'
+        ws['I2'] = 'dias'
+        ws['J2'] = 'horas'
+        ws['K2'] = 'minutos'
+        ws['L2'] = 'valor sin descuento'
+        ws['M2'] = 'descuento'
+        ws['N2'] = 'valor pagado'
 
-        cont = 3
+        cont = 3                                                                    #Inicia el primer registro en la celda numero 3
         for factura in facturas:
             ws.cell(row = cont, column = 1).value = factura.pk                       #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
             ws.cell(row = cont, column = 2).value = factura.registroEntrada.placa.placa
@@ -91,7 +96,12 @@ class GenerarInformeTotalExcel(TemplateView):
             ws.cell(row = cont, column = 6).value = factura.registroEntrada.placa.tipo.tarifa
             ws.cell(row = cont, column = 7).value = factura.registroEntrada.horaIngreso
             ws.cell(row = cont, column = 8).value = factura.horaSalida
-            ws.cell(row = cont, column = 9).value = factura.valorPagar
+            ws.cell(row = cont, column = 9).value = factura.diasEstacionado
+            ws.cell(row = cont, column = 10).value = factura.horasEstacionado
+            ws.cell(row = cont, column = 11).value = factura.minutosEstaciondo
+            ws.cell(row = cont, column = 12).value = factura.valorSinDescuento
+            ws.cell(row = cont, column = 13).value = factura.descuento
+            ws.cell(row = cont, column = 14).value = factura.valorPagar
             cont+=1
         nombre_archivo = "ReporteExcel.xlsx"
         response = HttpResponse(content_type = "application/ms-excel")

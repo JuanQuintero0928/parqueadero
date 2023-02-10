@@ -7,26 +7,11 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from .models import Empresa, Categoria, VehiculoRegistrado, RegistroEntrada, Descuento, Factura
-from .forms import CategoriaForm, VehiculoRegistradoForm, RegistroEntradaForm, DescuentoForm, EmpresaForm, RegistroEntradaDeleteForm
+from .forms import CategoriaForm, VehiculoRegistradoForm, RegistroEntradaForm, DescuentoForm, EmpresaForm, RegistroEntradaDeleteForm, FacturaForm, VehiculoConsultaForm
 from datetime import datetime
 import math
 
-# Create your views here.
-
-# Funcion para obtener el numero de carros estacionados.
-def calculoParqCarro():
-    objCarro = VehiculoRegistrado.objects.filter(estadoParqueadero = True).exclude(tipo_id = 1)
-    numCarros = len(objCarro)
-    datoCarro = {'numCarros':numCarros}
-    return (datoCarro)
-
-# Funcion para obtener el numero de motos estacionados.
-def calculoParqMoto():
-    objMoto = VehiculoRegistrado.objects.filter(estadoParqueadero = True, tipo_id = 1)
-    numMotos = len(objMoto)
-    datosMoto ={'numMotos':numMotos}
-    return (datosMoto)
-
+# Funcion para obtener el numero de vehiculos estacionados.
 def cupoActual():
     cupoMoto = 0
     cupoCarro = 0
@@ -89,16 +74,26 @@ class EditarCategoria(UpdateView):
     template_name = 'parking/crear_categoria.html'
     success_url = reverse_lazy('parking:listar_categoria')
 
-class ListarVehiculoRegistrado(ListView):
+class ListarVehiculoRegistrado(View):
     model = VehiculoRegistrado
     template_name = 'parking/listar_vehiculoregistro.html'
 
     def get(self, request, *args, **kwargs):
+        form = VehiculoConsultaForm()
         query = self.model.objects.filter(estado =True).order_by('pk')
         paginator = Paginator(query,7)
         page = request.GET.get('page')
         query = paginator.get_page(page)
-        return render(request, self.template_name, {'datos':query})
+        return render(request, self.template_name, {'datos':query, 'form': form})
+    
+    def post(self, request, *args, **kwargs):
+        formulario = VehiculoConsultaForm(request.POST)
+        if formulario.is_valid():
+            placa = formulario.cleaned_data['placa'].upper()
+            query = VehiculoRegistrado.objects.filter(placa__icontains = placa)
+            return render(request, self.template_name, {'datos':query, 'form': formulario})
+        else:
+            print('placa no existe')
 
 class CrearVehiculo(CreateView):
 
@@ -196,10 +191,8 @@ class CrearRegistroEntrada(CreateView):
                 if objVehiculo.estadoParqueadero == False:
                     cuposTotal = Empresa.objects.get(pk=1)                                      #Solo sirve con una empresa
                     if objVehiculo.tipo_id == 1:                                                # Ojo, valor quemado
-                        cupoActual = calculoParqMoto()                                          # Funcion que calcula el numero de motos estacionadas actualmente                                                         
-                        for cupo in cupoActual.values():
-                            cupoMoto = cupo
-                        if cupoMoto < cuposTotal.cuposMoto:
+                        dato = cupoActual()                                                     # Funcion que calcula el numero de motos estacionadas actualmente
+                        if dato['moto'] < cuposTotal.cuposMoto:
                             obj = RegistroEntrada()
                             obj.placa = objVehiculo
                             objVehiculo.estadoParqueadero = True
@@ -211,10 +204,8 @@ class CrearRegistroEntrada(CreateView):
                             messages.warning(request, 'Parqueadero lleno para motos')
                             return HttpResponseRedirect(reverse_lazy('parking:registro_entrada'))
                     else:
-                        cupoActual = calculoParqCarro()
-                        for cupo in cupoActual.values():
-                            cupoCarro = cupo
-                        if cupoCarro < cuposTotal.cuposCarro:
+                        dato = cupoActual()
+                        if dato['vehiculo'] < cuposTotal.cuposCarro:
                             obj = RegistroEntrada()
                             obj.placa = objVehiculo
                             objVehiculo.estadoParqueadero = True
@@ -282,13 +273,128 @@ class EditarDescuento(UpdateView):
     template_name = 'parking/crear_descuento.html'
     success_url = reverse_lazy('parking:listar_descuento')
 
-# ---------------------------------------------------------------------------
-#Queda pendiente el modulo de facturas hacerlo por medio de una clase
-class CrearFactura(ListView):
+class CrearFactura(View):
     model = RegistroEntrada
-    template_name = 'parking/listar_factura.html'
-    context_object_name = 'facturar'
-    queryset = Descuento.objects.all()
+    template_name = 'parking/facturar.html'
+
+    def get(self, request, *args, **kwargs):
+        form = FacturaForm()
+        registroEntrada = self.model.objects.get(pk = kwargs['pk'])
+        fechaActual = datetime.now()                                        # Fecha y Hora actual
+        fechaIngreso = registroEntrada.horaIngreso                          #Se obtiene la hora de Ingreso
+        diff = fechaActual - fechaIngreso
+        minutos = (diff.seconds)/60                                         # Minutos que estuvo en parqueadero
+        # Datos solo para mostrar en el template
+        horasTemplate = math.floor(minutos/60)
+        minutosTemplate = int(round((minutos % 60),0))
+        horas = math.ceil(minutos/60)                                       # Horas en parqueadero redondeado hacia arriba
+        if diff.days > 0:
+            dias = diff.days
+            pagar = int((((dias*24) + horas) * registroEntrada.placa.tipo.tarifa))
+        else:
+            pagar = int(horas * registroEntrada.placa.tipo.tarifa)
+            dias = 0
+
+        if registroEntrada.placa.descuento.porcentaje > 0:
+            valorDescuento = int((pagar * registroEntrada.placa.descuento.porcentaje)/100)
+            valorPagar = int(pagar-valorDescuento)
+        else:
+            valorPagar = int(pagar)
+            valorDescuento = 0  
+
+        datos = {'registroEntrada':registroEntrada,
+            'fechaActual':fechaActual,
+            'minutosTemplate':minutosTemplate,
+            'horasTemplate':horasTemplate,
+            'dias':dias,
+            'pagar':pagar,
+            'valorDescuento':valorDescuento,
+            'valorPagar':valorPagar
+        }
+        print(round(valorPagar,0))
+        return render(request, 'parking/facturar.html', {'datos':datos, 'form': form})
+
+    def post(self, request, *args, **kwargs):
+        formulario = FacturaForm(request.POST)
+        if formulario.is_valid():
+            valorPagar = formulario.cleaned_data['valorPagar']
+            diasEstacionado = formulario.cleaned_data['diasEstacionado']
+            horasEstacionado = formulario.cleaned_data['horasEstacionado']
+            minutosEstaciondo = formulario.cleaned_data['minutosEstaciondo']
+            valorSinDescuento = formulario.cleaned_data['valorSinDescuento']
+            descuento = formulario.cleaned_data['descuento']
+            fechaActual = datetime.now()                                        # Fecha y Hora actual
+            registroEntrada = RegistroEntrada.objects.get(pk=kwargs['pk'])
+            registroEntrada.estado = True
+            registroEntrada.save()                                      
+            registroEntrada.placa.estadoParqueadero = False                     # Objeto del vehiculo
+            registroEntrada.placa.save()
+            creacionfactura = Factura()                                         #Objeto de creacion de factura
+            creacionfactura.horaSalida = fechaActual
+            creacionfactura.valorPagar = valorPagar
+            creacionfactura.diasEstacionado = diasEstacionado
+            creacionfactura.horasEstacionado = horasEstacionado
+            creacionfactura.minutosEstaciondo = minutosEstaciondo
+            creacionfactura.valorSinDescuento = valorSinDescuento
+            creacionfactura.descuento = descuento
+            creacionfactura.estado = True
+            creacionfactura.registroEntrada = RegistroEntrada.objects.get(pk=kwargs['pk'])
+            creacionfactura.save()
+            messages.info(request,'Factura realizada con exito.')
+            return redirect('parking:registro_entrada')
+        else:
+            messages.warning(request,'No se pudo registrar la factura, comunicarse con el administrador.')
+            return redirect('parking:registro_entrada')
+
+# ------------------------EJEMPLO DE VISTAS BASADAS EN CLASES---------------------------------------------------
+def crearRegistroEntrada(request):
+    if request.method == 'POST':
+        formulario = RegistroEntradaForm(request.POST)
+        if formulario.is_valid():
+            try:
+                objeto = RegistroEntrada()
+                placaEscrita = formulario.cleaned_data['placa']
+                objetoVehiculo = VehiculoRegistrado.objects.get(placa = placaEscrita)
+                objeto.placa = objetoVehiculo
+                if objetoVehiculo.estadoParqueadero == True:
+                    messages.warning(request,'El vehiculo esta dentro del parqueadero, validar información.')
+                    return redirect('parking:crear_registroEntrada')
+                else:
+                    objetoVehiculo.estadoParqueadero = True
+                    cupoTotal = Empresa.objects.get(pk = 1)
+                    if objetoVehiculo.tipo_id == 1:
+                        cupoActualMoto = calculoParqMoto()
+                        for cupo in cupoActualMoto.values():
+                            cupoMoto = cupo
+                        if cupoMoto < cupoTotal.cuposMoto:
+                            objeto.save()           #Crea el registro entrada
+                            objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
+                            messages.info(request,'Moto registrada con exito.')
+                            return redirect('parking:registro_entrada')
+                        else:
+                            messages.warning(request,'Parqueadero lleno para motos.')
+                            return redirect('parking:crear_registroEntrada')
+                    else:
+                        cupoActualCarro = calculoParqCarro()
+                        for cupo in cupoActualCarro.values():
+                            cupoCarro = cupo
+                        if cupoCarro < cupoTotal.cuposCarro:
+                            objeto.save()           #Crea el registro entrada
+                            objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
+                            messages.info(request,'Vehiculo registrada con exito.')
+                            return redirect('parking:registro_entrada')
+                        else:
+                            messages.warning(request,'Parqueadero lleno para carro.')
+                            return redirect('parking:crear_registroEntrada')
+            except Exception as e:
+                messages.warning(request,'El vehiculo no se encuentra registrado en la base de datos, primero debe crearlo para continuar con el proceso')
+                return redirect('parking:crear_registroEntrada')
+        else:
+            messages.error(request,'Error al guardar la información, validar nuevamente los datos ingresados.')
+            return redirect('parking:crear_registroEntrada')
+    else:
+        formulario = RegistroEntradaForm()
+        return render(request, 'parking/crear_registroentrada.html', {'form':formulario})
 
 def crearFactura(request, pk):
     factura = RegistroEntrada.objects.get(pk =pk)
@@ -344,53 +450,3 @@ def crearFactura(request, pk):
         messages.info(request,'Factura realizada con exito.')
         return redirect('parking:registro_entrada')
     return render(request, 'parking/facturar.html', {'datos':datos})
-
-# ------------------------EJEMPLO DE VISTAS BASADAS EN CLASES---------------------------------------------------
-def crearRegistroEntrada(request):
-    if request.method == 'POST':
-        formulario = RegistroEntradaForm(request.POST)
-        if formulario.is_valid():
-            try:
-                objeto = RegistroEntrada()
-                placaEscrita = formulario.cleaned_data['placa']
-                objetoVehiculo = VehiculoRegistrado.objects.get(placa = placaEscrita)
-                objeto.placa = objetoVehiculo
-                if objetoVehiculo.estadoParqueadero == True:
-                    messages.warning(request,'El vehiculo esta dentro del parqueadero, validar información.')
-                    return redirect('parking:crear_registroEntrada')
-                else:
-                    objetoVehiculo.estadoParqueadero = True
-                    cupoTotal = Empresa.objects.get(pk = 1)
-                    if objetoVehiculo.tipo_id == 1:
-                        cupoActualMoto = calculoParqMoto()
-                        for cupo in cupoActualMoto.values():
-                            cupoMoto = cupo
-                        if cupoMoto < cupoTotal.cuposMoto:
-                            objeto.save()           #Crea el registro entrada
-                            objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
-                            messages.info(request,'Moto registrada con exito.')
-                            return redirect('parking:registro_entrada')
-                        else:
-                            messages.warning(request,'Parqueadero lleno para motos.')
-                            return redirect('parking:crear_registroEntrada')
-                    else:
-                        cupoActualCarro = calculoParqCarro()
-                        for cupo in cupoActualCarro.values():
-                            cupoCarro = cupo
-                        if cupoCarro < cupoTotal.cuposCarro:
-                            objeto.save()           #Crea el registro entrada
-                            objetoVehiculo.save()   #Actualiza el estado del vehiculo a true
-                            messages.info(request,'Vehiculo registrada con exito.')
-                            return redirect('parking:registro_entrada')
-                        else:
-                            messages.warning(request,'Parqueadero lleno para carro.')
-                            return redirect('parking:crear_registroEntrada')
-            except Exception as e:
-                messages.warning(request,'El vehiculo no se encuentra registrado en la base de datos, primero debe crearlo para continuar con el proceso')
-                return redirect('parking:crear_registroEntrada')
-        else:
-            messages.error(request,'Error al guardar la información, validar nuevamente los datos ingresados.')
-            return redirect('parking:crear_registroEntrada')
-    else:
-        formulario = RegistroEntradaForm()
-        return render(request, 'parking/crear_registroentrada.html', {'form':formulario})

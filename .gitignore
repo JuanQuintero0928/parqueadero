@@ -1,4 +1,6 @@
 parking/__pycache__
 parking/migrations
+reportes/__pycache__
+reportes/migrations
 parqueadero/__pycache__
 db.sqlite3

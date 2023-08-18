@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    Reportes
+{% endblock titulo %}
+{% block tituloPrincipal %}
+    Reporte por Fecha
+{% endblock tituloPrincipal %}
+{% block tituloSecundario %}
+    Seleccione el rango de fechas
+{% endblock tituloSecundario %}
+{% block pagina_actual %}
+<div class="card-body card-block">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="fa fa-dot-circle-o"></i> Consultar
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock pagina_actual %}

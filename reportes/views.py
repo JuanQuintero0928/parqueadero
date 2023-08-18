@@ -16,6 +16,7 @@ from django.contrib.staticfiles import finders
 from openpyxl import Workbook
 
 from parking.models import Factura, Empresa
+from parking.forms import ReporteEntrada
 
 # Create your views here.
 
@@ -109,3 +110,9 @@ class GenerarInformeTotalExcel(TemplateView):
         response['Content-Disposition'] = content
         wb.save(response)
         return response
+
+class ReporteDias(View):
+    def get(self, request, *args, **kwargs):
+        template_name = 'reportes/reporteDias.html'
+        context = {'form' : ReporteEntrada()}
+        return render(request, template_name, context) 

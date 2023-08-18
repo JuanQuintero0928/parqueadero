@@ -186,3 +186,6 @@ class VehiculoConsultaForm(forms.ModelForm):
             'placa' : forms.TextInput()
         }
 
+class ReporteEntrada(forms.Form):
+    fechaInicio = forms.DateField(label='Fecha de Inicio')
+    fechaFinal = forms.DateField(label='Fecha Final')

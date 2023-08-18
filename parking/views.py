@@ -94,6 +94,10 @@ class ListarVehiculoRegistrado(View):
             return render(request, self.template_name, {'datos':query, 'form': formulario})
         else:
             print('placa no existe')
+            form = VehiculoConsultaForm()
+            query = self.model.objects.filter(estado =True).order_by('pk')
+            return render(request, self.template_name, {'datos':query, 'form': form})
+
 
 class CrearVehiculo(CreateView):
 
